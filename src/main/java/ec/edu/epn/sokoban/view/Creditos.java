@@ -11,7 +11,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
-public class Creditos extends BorderPane  {
+public class Creditos extends BorderPane {
+
     private final GestorVentanas gestorVentanas;
 
     private Button btnVolver;
@@ -63,7 +64,7 @@ public class Creditos extends BorderPane  {
                 ComponentesUI.crearTituloPrincipal("CRÉDITOS");
 
         Label proyecto =
-                ComponentesUI.crearSubtitulo("Proyecto Sokoban");
+                ComponentesUI.crearSubtitulo("Proyecto Sokoban • GR2SW");
 
         Label universidad =
                 ComponentesUI.crearSubtitulo("Escuela Politécnica Nacional");
@@ -85,23 +86,70 @@ public class Creditos extends BorderPane  {
         GridPane panel = new GridPane();
 
         panel.setAlignment(Pos.CENTER);
-
         panel.setHgap(40);
         panel.setVgap(30);
 
-        panel.add(crearGrupo("Grupo 1", 6),0,0);
-        panel.add(crearGrupo("Grupo 2", 6),1,0);
+        panel.add(crearGrupo(
+                "Grupo 1",
+                new String[]{
+                        "Ariel Baldeon",
+                        "Mayerli Chavez",
+                        "Domenica Astudillo",
+                        "Camila Paredes",
+                        "Vanesa Yupanqui",
+                        "Angel Barahona"
+                }), 0, 0);
 
-        panel.add(crearGrupo("Grupo 3", 6),0,1);
-        panel.add(crearGrupo("Grupo 4", 6),1,1);
+        panel.add(crearGrupo(
+                "Grupo 2",
+                new String[]{
+                        "Andrés Veas",
+                        "Sabina Zabala",
+                        "Jeimy Sanchez",
+                        "Jhonatan Torres",
+                        "Franciel Tipantuña",
+                        "Katherine Sánchez"
+                }), 1, 0);
 
-        panel.add(crearGrupo("Grupo 5", 7),0,2,2,1);
+        panel.add(crearGrupo(
+                "Grupo 3",
+                new String[]{
+                        "Fernando Carrera",
+                        "Mateo Aguirre",
+                        "Karen Mosquera",
+                        "Jorge Oviedo",
+                        "Guillermo Cevallos",
+                        "Melany Alarcón"
+                }), 0, 1);
+
+        panel.add(crearGrupo(
+                "Grupo 4",
+                new String[]{
+                        "Dhalin Avila",
+                        "Leonel Morales",
+                        "Leonardo Lugmaña",
+                        "Anthony Guaman",
+                        "Dylan Casa",
+                        "José  Yupangui"
+                }), 1, 1);
+
+        panel.add(crearGrupo(
+                "Grupo 5",
+                new String[]{
+                        "Gabriel Vinueza",
+                        "Oscar Gualotuña",
+                        "Mauricio López",
+                        "Luis Diaz",
+                        "Maria Alquinga",
+                        "Nayia Condor",
+                        "Anthony Minayo"
+                }), 0, 2, 2, 1);
 
         return panel;
 
     }
 
-    private VBox crearGrupo(String nombreGrupo, int cantidadIntegrantes) {
+    private VBox crearGrupo(String nombreGrupo, String[] integrantesGrupo) {
 
         VBox grupo = new VBox(10);
 
@@ -117,29 +165,31 @@ public class Creditos extends BorderPane  {
                         "-fx-border-width: 2;"
         );
 
-        Label titulo = ComponentesUI.crearSubtitulo(nombreGrupo);
+        Label titulo =
+                ComponentesUI.crearSubtitulo(nombreGrupo);
 
         GridPane integrantes = new GridPane();
+
         integrantes.setHgap(25);
         integrantes.setVgap(6);
 
-        int mitad = (int) Math.ceil(cantidadIntegrantes / 2.0);
+        int mitad = (int) Math.ceil(integrantesGrupo.length / 2.0);
 
-        for (int i = 1; i <= cantidadIntegrantes; i++) {
+        for (int i = 0; i < integrantesGrupo.length; i++) {
 
             int columna;
             int fila;
 
-            if (i <= mitad) {
+            if (i < mitad) {
                 columna = 0;
-                fila = i - 1;
+                fila = i;
             } else {
                 columna = 1;
-                fila = i - mitad - 1;
+                fila = i - mitad;
             }
 
             integrantes.add(
-                    ComponentesUI.crearSubtitulo("Integrante " + i),
+                    ComponentesUI.crearSubtitulo(integrantesGrupo[i]),
                     columna,
                     fila
             );
@@ -158,7 +208,6 @@ public class Creditos extends BorderPane  {
         VBox pie = new VBox();
 
         pie.setAlignment(Pos.CENTER);
-
         pie.setPadding(new Insets(20));
 
         btnVolver =

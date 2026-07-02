@@ -2,7 +2,6 @@ package ec.edu.epn.sokoban.view;
 
 import ec.edu.epn.sokoban.controller.GestorVentanas;
 import ec.edu.epn.sokoban.model.JuegoSokoban;
-import ec.edu.epn.sokoban.model.historial.Nivel;
 import ec.edu.epn.sokoban.view.estilos.ComponentesUI;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,13 +17,14 @@ import java.util.List;
 
 public class SeleccionNivel extends BorderPane {
 
+    private static final int TOTAL_NIVELES = 5;
+
     private final JuegoSokoban juego;
     private final GestorVentanas gestorVentanas;
 
     private Button btnVolver;
 
     private final List<Button> botonesNivel = new ArrayList<>();
-    private final List<Nivel> nivelesMostrados = new ArrayList<>();
 
     public SeleccionNivel(
             JuegoSokoban juego,
@@ -85,7 +85,6 @@ public class SeleccionNivel extends BorderPane {
         grid.setVgap(30);
 
         botonesNivel.clear();
-        nivelesMostrados.clear();
 
         cargarNiveles();
 
@@ -101,49 +100,22 @@ public class SeleccionNivel extends BorderPane {
     }
 
     /**
-     * Carga los niveles disponibles.
-     * Temporalmente crea niveles ficticios.
-     * Cuando exista la lectura de TXT este método no deberá cambiar.
+     * Carga las tarjetas de los niveles.
+     * Temporalmente se utiliza una cantidad fija de niveles.
+     * Cuando GestorPersistencia permita obtener los niveles disponibles,
+     * este método deberá consultarlos dinámicamente.
      */
     private void cargarNiveles() {
 
-        if (juego.getNivelesDisponibles().isEmpty()) {
+        for (int i = 1; i <= TOTAL_NIVELES; i++) {
 
-            for (int i = 1; i <= 5; i++) {
+            Button tarjeta =
+                    ComponentesUI.crearTarjetaNivel(
+                            i,
+                            false
+                    );
 
-                Nivel nivel = new Nivel("nivel" + i + ".txt");
-
-                nivelesMostrados.add(nivel);
-
-                Button tarjeta =
-                        ComponentesUI.crearTarjetaNivel(
-                                i,
-                                nivel.isCompletado()
-                        );
-
-                botonesNivel.add(tarjeta);
-            }
-
-        } else {
-
-            List<Nivel> niveles =
-                    juego.getNivelesDisponibles();
-
-            for (int i = 0; i < niveles.size(); i++) {
-
-                Nivel nivel = niveles.get(i);
-
-                nivelesMostrados.add(nivel);
-
-                Button tarjeta =
-                        ComponentesUI.crearTarjetaNivel(
-                                i + 1,
-                                nivel.isCompletado()
-                        );
-
-                botonesNivel.add(tarjeta);
-            }
-
+            botonesNivel.add(tarjeta);
         }
 
     }
@@ -167,10 +139,10 @@ public class SeleccionNivel extends BorderPane {
 
         for (int i = 0; i < botonesNivel.size(); i++) {
 
-            final Nivel nivel = nivelesMostrados.get(i);
+            final int numeroNivel = i + 1;
 
             botonesNivel.get(i).setOnAction(e ->
-                    gestorVentanas.abrirNivel(nivel));
+                    gestorVentanas.abrirNivel(numeroNivel));
 
         }
 
