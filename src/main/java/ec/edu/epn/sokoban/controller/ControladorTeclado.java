@@ -18,11 +18,11 @@ public class ControladorTeclado {
         this.juego = juego;
     }
 
-    public JuegoSokoban getJuego() {
-        return juego;
-    }
-
     public void manejarPulsacionTeclado(KeyEvent evento) {
+        if (evento == null || juego == null) {
+            return;
+        }
+
         Direccion direccion = mapearTecla(evento.getCode());
 
         if (direccion != null) {
