@@ -32,6 +32,9 @@ public class ReglasJuego {
         }
 
         if (destino instanceof Caja) {
+            if (((Caja) destino).isEnMeta()) {
+                return false;
+            }
             int filaTrasCaja = filaDestino + d.getDeltaFila();
             int columnaTrasCaja = columnaDestino + d.getDeltaColumna();
 
@@ -66,4 +69,3 @@ public class ReglasJuego {
         return true;
     }
 }
-

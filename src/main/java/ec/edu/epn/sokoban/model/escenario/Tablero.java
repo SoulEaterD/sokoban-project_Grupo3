@@ -20,7 +20,7 @@ public class Tablero {
     /**
      * Un tablero es inicializado con dimensiones definidas.
      *
-     * @param filas cantidad de filas del tablero
+     * @param filas    cantidad de filas del tablero
      * @param columnas cantidad de columnas del tablero
      */
     public Tablero(int filas, int columnas) {
@@ -80,7 +80,8 @@ public class Tablero {
     }
 
     /**
-     * La matriz de casillas es actualizada y sus coordenadas internas son sincronizadas.
+     * La matriz de casillas es actualizada y sus coordenadas internas son
+     * sincronizadas.
      *
      * @param celdas nueva matriz bidimensional de casillas
      */
@@ -119,8 +120,8 @@ public class Tablero {
     /**
      * Una casilla es reemplazada de forma atomica en la matriz.
      *
-     * @param f fila que sera actualizada
-     * @param c columna que sera actualizada
+     * @param f            fila que sera actualizada
+     * @param c            columna que sera actualizada
      * @param nuevaCasilla nueva casilla que sera ubicada
      */
     public void actualizarCasilla(int f, int c, Casilla nuevaCasilla) {
@@ -137,7 +138,8 @@ public class Tablero {
     }
 
     /**
-     * El personaje es desplazado en una direccion cuando la casilla destino es transitable.
+     * El personaje es desplazado en una direccion cuando la casilla destino es
+     * transitable.
      *
      * @param d direccion de movimiento solicitada
      * @return true si el movimiento fue aplicado; false en caso contrario
@@ -161,7 +163,15 @@ public class Tablero {
             return false;
         }
 
-        actualizarCasilla(filaOrigen, columnaOrigen, new SueloComun(filaOrigen, columnaOrigen));
+        Casilla destino = obtenerCasilla(filaDestino, columnaDestino);
+        boolean destinoEsMeta = (destino instanceof Meta);
+
+        Casilla casillaLiberada = personaje.isEnMeta()
+                ? new Meta(filaOrigen, columnaOrigen)
+                : new SueloComun(filaOrigen, columnaOrigen);
+
+        actualizarCasilla(filaOrigen, columnaOrigen, casillaLiberada);
+        personaje.setEnMeta(destinoEsMeta);
         actualizarCasilla(filaDestino, columnaDestino, personaje);
         return true;
     }
@@ -171,7 +181,8 @@ public class Tablero {
      *
      * @param f fila consultada
      * @param c columna consultada
-     * @return true si la coordenada contiene una casilla transitable; false en caso contrario
+     * @return true si la coordenada contiene una casilla transitable; false en caso
+     *         contrario
      */
     public boolean esTransitable(int f, int c) {
         Casilla casilla = obtenerCasilla(f, c);

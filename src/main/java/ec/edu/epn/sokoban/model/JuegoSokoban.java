@@ -97,6 +97,7 @@ public class JuegoSokoban {
             verificarYRegistrarVictoria();
         }
     }
+
     // Depende de la implementación de PartidaMomento.restaurarEnTablero().
     public void deshacerUltimaAccion() {
         if (tableroActual == null) {
@@ -114,6 +115,10 @@ public class JuegoSokoban {
         if (nivelActual != null) {
             seleccionarNivel(nivelActual);
         }
+    }
+
+    public HistorialMovimientos getHistorial() {
+        return historial;
     }
 
     public void agregarNivel(Nivel n) {
@@ -178,6 +183,10 @@ public class JuegoSokoban {
                     hayMetaPendiente = true;
                 }
 
+                if (casilla instanceof Personaje && ((Personaje) casilla).isEnMeta()) {
+                    hayMetaPendiente = true;
+                }
+
                 if (casilla instanceof Caja && ((Caja) casilla).isEnMeta()) {
                     hayCajaEnMeta = true;
                 }
@@ -190,7 +199,3 @@ public class JuegoSokoban {
         }
     }
 }
-
-
-
-

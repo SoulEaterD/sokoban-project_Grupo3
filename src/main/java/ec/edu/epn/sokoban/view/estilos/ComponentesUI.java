@@ -107,47 +107,63 @@ public class ComponentesUI {
         boton.setWrapText(true);
         boton.setAlignment(Pos.CENTER);
 
-        boton.setStyle(
-                "-fx-background-color: linear-gradient(to bottom, #3A2717, #17100B);" +
-                        "-fx-text-fill: #F6B43A;" +
-                        "-fx-font-size: 20px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-radius: 18;" +
-                        "-fx-border-radius: 18;" +
-                        "-fx-border-color: #7A4A1D;" +
-                        "-fx-border-width: 3;" +
-                        "-fx-cursor: hand;"
-        );
+        if (completado) {
+            boton.setDisable(true);
+            boton.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, #2B2B2B, #1B1B1B);" +
+                            "-fx-text-fill: #8E8E8E;" +
+                            "-fx-font-size: 20px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 18;" +
+                            "-fx-border-radius: 18;" +
+                            "-fx-border-color: #4F4F4F;" +
+                            "-fx-border-width: 3;" +
+                            "-fx-cursor: not-allowed;" +
+                            "-fx-opacity: 0.75;"
+            );
+        } else {
+            boton.setStyle(
+                    "-fx-background-color: linear-gradient(to bottom, #3A2717, #17100B);" +
+                            "-fx-text-fill: #F6B43A;" +
+                            "-fx-font-size: 20px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-background-radius: 18;" +
+                            "-fx-border-radius: 18;" +
+                            "-fx-border-color: #7A4A1D;" +
+                            "-fx-border-width: 3;" +
+                            "-fx-cursor: hand;"
+            );
+
+            boton.setOnMouseEntered(e ->
+                    boton.setStyle(
+                            "-fx-background-color: linear-gradient(to bottom, #5A3D22, #24160A);" +
+                                    "-fx-text-fill: #FFD36B;" +
+                                    "-fx-font-size: 24px;" +
+                                    "-fx-font-weight: bold;" +
+                                    "-fx-background-radius: 18;" +
+                                    "-fx-border-radius: 18;" +
+                                    "-fx-border-color: #D49A37;" +
+                                    "-fx-border-width: 3;" +
+                                    "-fx-cursor: hand;"
+                    )
+            );
+
+            boton.setOnMouseExited(e ->
+                    boton.setStyle(
+                            "-fx-background-color: linear-gradient(to bottom, #3A2717, #17100B);" +
+                                    "-fx-text-fill: #F6B43A;" +
+                                    "-fx-font-size: 20px;" + // Cambiado a 20px para ser consistente con el tamaño por defecto
+                                    "-fx-font-weight: bold;" +
+                                    "-fx-background-radius: 18;" +
+                                    "-fx-border-radius: 18;" +
+                                    "-fx-border-color: #7A4A1D;" +
+                                    "-fx-border-width: 3;" +
+                                    "-fx-cursor: hand;"
+                    )
+            );
+        }
 
         boton.setEffect(crearSombra());
-
-        boton.setOnMouseEntered(e ->
-                boton.setStyle(
-                        "-fx-background-color: linear-gradient(to bottom, #5A3D22, #24160A);" +
-                                "-fx-text-fill: #FFD36B;" +
-                                "-fx-font-size: 24px;" +
-                                "-fx-font-weight: bold;" +
-                                "-fx-background-radius: 18;" +
-                                "-fx-border-radius: 18;" +
-                                "-fx-border-color: #D49A37;" +
-                                "-fx-border-width: 3;" +
-                                "-fx-cursor: hand;"
-                )
-        );
-
-        boton.setOnMouseExited(e ->
-                boton.setStyle(
-                        "-fx-background-color: linear-gradient(to bottom, #3A2717, #17100B);" +
-                                "-fx-text-fill: #F6B43A;" +
-                                "-fx-font-size: 24px;" +
-                                "-fx-font-weight: bold;" +
-                                "-fx-background-radius: 18;" +
-                                "-fx-border-radius: 18;" +
-                                "-fx-border-color: #7A4A1D;" +
-                                "-fx-border-width: 3;" +
-                                "-fx-cursor: hand;"
-                )
-        );
 
         return boton;
     }

@@ -152,9 +152,15 @@ public class PanelTablero extends GridPane {
             agregarSprite(celda, "PARED", Color.web("#3A3A3A"));
 
         } else if (casilla instanceof Caja) {
+            if (((Caja) casilla).isEnMeta()) {
+                agregarSprite(celda, "META", Color.web("#F4D35E"));
+            }
             agregarSprite(celda, "CAJA", Color.web("#B8793B"));
 
         } else if (casilla instanceof Personaje) {
+            if (((Personaje) casilla).isEnMeta()) {
+                agregarSprite(celda, "META", Color.web("#F4D35E"));
+            }
             agregarSprite(celda, "JUGADOR", Color.web("#4DA6FF"));
 
         } else if (casilla instanceof Meta) {

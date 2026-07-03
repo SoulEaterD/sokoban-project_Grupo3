@@ -63,7 +63,9 @@ public class FabricaNiveles {
                 return new Personaje(fila, columna);
 
             case "+":
-                return new Personaje(fila, columna);
+                Personaje personajeEnMeta = new Personaje(fila, columna);
+                personajeEnMeta.setEnMeta(true);
+                return personajeEnMeta;
 
             default:
                 return new SueloComun(fila, columna);

@@ -26,6 +26,9 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
     // nativo de escucha de JavaFX para presionar una tecla
     @Override
     public void handle(KeyEvent evento) {
+        if (juego.getNivelActual() != null && juego.getNivelActual().isCompletado()) {
+            return;
+        }
         KeyCode codigo = evento.getCode();
 
         // linea de control de IntelliJ si detecta las teclas
@@ -33,7 +36,7 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
 
         Direccion direccionElegida = null;
 
-        // esquema de las teclas WASD y Flechas
+        // esquema de las teclas WASD, Flechas y retroceso (Undo)
         switch (codigo) {
             case UP:
             case W:
@@ -51,6 +54,15 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
             case D:
                 direccionElegida = Direccion.DERECHA;
                 break;
+            case Z:
+            case BACK_SPACE:
+            case U:
+                this.juego.deshacerUltimaAccion();
+                if (ventanaPrincipal != null && this.tablero != null) {
+                    ventanaPrincipal.actualizarTablero(this.tablero);
+                    ventanaPrincipal.actualizarEstadisticas();
+                }
+                return;
             default:
                 return; // Ignora cualquier otra tecla
         }
@@ -61,6 +73,7 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
 
             if (ventanaPrincipal != null && this.tablero != null) {
                 ventanaPrincipal.actualizarTablero(this.tablero);
+                ventanaPrincipal.actualizarEstadisticas();
             }
         }
     }

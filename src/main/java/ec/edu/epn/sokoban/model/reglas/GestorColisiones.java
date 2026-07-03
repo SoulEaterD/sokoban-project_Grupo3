@@ -3,14 +3,14 @@ package ec.edu.epn.sokoban.model.reglas;
 import ec.edu.epn.sokoban.Direccion;
 import ec.edu.epn.sokoban.model.escenario.*;
 
-
 public class GestorColisiones {
 
     public GestorColisiones() {
     }
 
     /**
-     * Analiza si mover un elemento desde 'c' en dirección 'd' causa una colisión inamovible
+     * Analiza si mover un elemento desde 'c' en dirección 'd' causa una colisión
+     * inamovible
      * (pared, límite del mapa, o caja que no se puede empujar).
      */
     public boolean verificarColision(Tablero t, Casilla c, Direccion d) {
@@ -33,6 +33,9 @@ public class GestorColisiones {
         }
 
         if (destino instanceof Caja) {
+            if (((Caja) destino).isEnMeta()) {
+                return true;
+            }
             int filaTrasCaja = filaDestino + d.getDeltaFila();
             int columnaTrasCaja = columnaDestino + d.getDeltaColumna();
 
@@ -51,7 +54,8 @@ public class GestorColisiones {
     }
 
     /**
-     * Ejecuta el empuje de la caja 'd' hacia 'dir'. Retorna true si el empuje se realizó.
+     * Ejecuta el empuje de la caja 'd' hacia 'dir'. Retorna true si el empuje se
+     * realizó.
      */
     public boolean resolverEmpuje(Tablero t, Casilla c, Caja d, Direccion dir) {
         if (t == null || d == null || dir == null) {

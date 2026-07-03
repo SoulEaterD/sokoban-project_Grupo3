@@ -17,8 +17,6 @@ import java.util.List;
 
 public class SeleccionNivel extends BorderPane {
 
-    private static final int TOTAL_NIVELES = 5;
-
     private final JuegoSokoban juego;
     private final GestorVentanas gestorVentanas;
 
@@ -100,19 +98,19 @@ public class SeleccionNivel extends BorderPane {
     }
 
     /**
-     * Carga las tarjetas de los niveles.
-     * Temporalmente se utiliza una cantidad fija de niveles.
-     * Cuando GestorPersistencia permita obtener los niveles disponibles,
-     * este método deberá consultarlos dinámicamente.
+     * Carga las tarjetas de los niveles desde el modelo de juego.
+     * Cada botón reflejará si el nivel ya está completado.
      */
     private void cargarNiveles() {
-
-        for (int i = 1; i <= TOTAL_NIVELES; i++) {
+        botonesNivel.clear();
+        for (int i = 0; i < juego.getNivelesDisponibles().size(); i++) {
+            int numeroNivel = i + 1;
+            boolean completado = juego.getNivelesDisponibles().get(i).isCompletado();
 
             Button tarjeta =
                     ComponentesUI.crearTarjetaNivel(
-                            i,
-                            false
+                            numeroNivel,
+                            completado
                     );
 
             botonesNivel.add(tarjeta);

@@ -78,7 +78,11 @@ public class PartidaMomento {
 
         int filaJugador = posicionJugador.getFila();
         int columnaJugador = posicionJugador.getColumna();
-        matrizRestaurada[filaJugador][columnaJugador] = new Personaje(filaJugador, columnaJugador);
+        Personaje personajeRestaurado = new Personaje(filaJugador, columnaJugador);
+        if (posicionJugador instanceof Personaje) {
+            personajeRestaurado.setEnMeta(((Personaje) posicionJugador).isEnMeta());
+        }
+        matrizRestaurada[filaJugador][columnaJugador] = personajeRestaurado;
 
         t.setCeldas(matrizRestaurada);
     }
@@ -112,6 +116,12 @@ public class PartidaMomento {
         if (casilla instanceof Meta meta) {
             return new Meta(fila, columna, meta.isSatisfecha());
         }
+        if (casilla instanceof Caja caja && caja.isEnMeta()) {
+            return new Meta(fila, columna, true);
+        }
+        if (casilla instanceof Personaje personaje && personaje.isEnMeta()) {
+            return new Meta(fila, columna, false);
+        }
         if (casilla instanceof Pared) {
             return new Pared(fila, columna);
         }
@@ -143,8 +153,10 @@ public class PartidaMomento {
         if (casilla instanceof Pared) {
             return new Pared(casilla.getFila(), casilla.getColumna());
         }
-        if (casilla instanceof Personaje) {
-            return new Personaje(casilla.getFila(), casilla.getColumna());
+        if (casilla instanceof Personaje personaje) {
+            Personaje copia = new Personaje(personaje.getFila(), personaje.getColumna());
+            copia.setEnMeta(personaje.isEnMeta());
+            return copia;
         }
         return new SueloComun(casilla.getFila(), casilla.getColumna());
     }
