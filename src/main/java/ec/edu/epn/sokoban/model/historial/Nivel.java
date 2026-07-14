@@ -7,8 +7,6 @@ public class Nivel {
     private boolean completado;
     private String[][] mapaDatos;
 
-
-
     /**
      * Un nivel es inicializado como no completado.
      *

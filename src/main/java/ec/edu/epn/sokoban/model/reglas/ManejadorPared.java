@@ -2,7 +2,6 @@ package ec.edu.epn.sokoban.model.reglas;
 
 import ec.edu.epn.sokoban.Direccion;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
-import ec.edu.epn.sokoban.model.escenario.Pared;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 
 /**
@@ -33,8 +32,9 @@ public class ManejadorPared implements ManejadorColision {
         }
 
         Casilla destino = tablero.obtenerCasilla(filaDestino, columnaDestino);
-        if (destino instanceof Pared) {
-            return false; // Bloqueado por pared
+        // Si el destino es intransitable y no es empujable, actúa como una pared/obstáculo infranqueable
+        if (destino != null && !destino.esTransitable() && !destino.esEmpujable()) {
+            return false;
         }
 
         // Si no colisiona con pared/límites, delegar al siguiente manejador de la cadena

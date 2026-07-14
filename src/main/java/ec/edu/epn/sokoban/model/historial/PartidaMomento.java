@@ -1,9 +1,9 @@
 package ec.edu.epn.sokoban.model.historial;
 
 import ec.edu.epn.sokoban.model.escenario.Caja;
+import ec.edu.epn.sokoban.model.escenario.CajaComun;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
 import ec.edu.epn.sokoban.model.escenario.Meta;
-import ec.edu.epn.sokoban.model.escenario.Pared;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
 import ec.edu.epn.sokoban.model.escenario.SueloComun;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
@@ -12,60 +12,49 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Un estado inmutable de partida es representado para restauracion y busqueda.
+ * Representa el estado registrado de una partida en un momento dado,
+ * permitiendo su restauración.
  */
 public class PartidaMomento {
     private final Map<Caja, Casilla> posicionesCajas;
     private final Casilla posicionJugador;
 
-    /**
-     * Un momento de partida es inicializado mediante copias profundas.
-     *
-     * @param posicionesCajas mapa de cajas y posiciones asociadas
-     * @param posicionJugador posicion del jugador en el estado registrado
-     */
     public PartidaMomento(Map<Caja, Casilla> posicionesCajas, Casilla posicionJugador) {
         this.posicionesCajas = Collections.unmodifiableMap(copiarPosicionesCajas(posicionesCajas));
         this.posicionJugador = copiarCasilla(posicionJugador);
     }
 
-
-
     /**
-     * El estado almacenado fue restaurado en el tablero mediante reemplazo atomico.
-     *
-     * @param t tablero que sera restaurado
+     * Restaura el estado guardado directamente sobre el tablero dado.
+     * Limpia la posición actual del personaje y las cajas y las reubica.
      */
     public void restaurarEnTablero(Tablero t) {
         if (t == null || posicionJugador == null) {
             return;
         }
 
-        Casilla[][] matrizRestaurada = copiarMatrizBase(t);
-        if (!posicionValida(posicionJugador.getFila(), posicionJugador.getColumna(), t)) {
-            return;
-        }
-
-        for (Map.Entry<Caja, Casilla> entrada : posicionesCajas.entrySet()) {
-            Casilla posicionCaja = entrada.getValue();
-            if (posicionCaja == null || !posicionValida(posicionCaja.getFila(), posicionCaja.getColumna(), t)) {
-                return;
+        // 1. Limpiar cajas y personaje existentes en el tablero actual
+        for (int f = 0; f < t.getFilas(); f++) {
+            for (int c = 0; c < t.getColumnas(); c++) {
+                Casilla casilla = t.obtenerCasilla(f, c);
+                if (casilla instanceof Personaje || casilla instanceof Caja) {
+                    Casilla reemplazo = t.esMeta(f, c) ? new Meta(f, c) : new SueloComun(f, c);
+                    t.actualizarCasilla(f, c, reemplazo);
+                }
             }
         }
 
+        // 2. Restaurar cajas en sus posiciones
         for (Map.Entry<Caja, Casilla> entrada : posicionesCajas.entrySet()) {
             Caja cajaOriginal = entrada.getKey();
-            Casilla posicionCaja = entrada.getValue();
-            Caja cajaRestaurada = copiarCajaEnPosicion(cajaOriginal, posicionCaja);
-            matrizRestaurada[posicionCaja.getFila()][posicionCaja.getColumna()] = cajaRestaurada;
+            Casilla pos = entrada.getValue();
+            Caja cajaRestaurada = new CajaComun(pos.getFila(), pos.getColumna(), cajaOriginal.isEnMeta());
+            t.actualizarCasilla(pos.getFila(), pos.getColumna(), cajaRestaurada);
         }
 
-        int filaJugador = posicionJugador.getFila();
-        int columnaJugador = posicionJugador.getColumna();
-        Personaje personajeRestaurado = new Personaje(filaJugador, columnaJugador);
-        matrizRestaurada[filaJugador][columnaJugador] = personajeRestaurado;
-
-        t.setCeldas(matrizRestaurada);
+        // 3. Restaurar personaje en su posición
+        Personaje personajeRestaurado = new Personaje(posicionJugador.getFila(), posicionJugador.getColumna());
+        t.actualizarCasilla(posicionJugador.getFila(), posicionJugador.getColumna(), personajeRestaurado);
     }
 
     private Map<Caja, Casilla> copiarPosicionesCajas(Map<Caja, Casilla> origen) {
@@ -73,74 +62,18 @@ public class PartidaMomento {
         if (origen == null) {
             return copia;
         }
-
         for (Map.Entry<Caja, Casilla> entrada : origen.entrySet()) {
-            Caja cajaCopiada = copiarCaja(entrada.getKey());
-            Casilla posicionCopiada = copiarCasilla(entrada.getValue());
+            Caja cajaCopiada = new CajaComun(entrada.getKey().getFila(), entrada.getKey().getColumna(), entrada.getKey().isEnMeta());
+            Casilla posicionCopiada = new SueloComun(entrada.getValue().getFila(), entrada.getValue().getColumna());
             copia.put(cajaCopiada, posicionCopiada);
         }
         return copia;
-    }
-
-    private Casilla[][] copiarMatrizBase(Tablero tablero) {
-        Casilla[][] copia = new Casilla[tablero.getFilas()][tablero.getColumnas()];
-        for (int fila = 0; fila < tablero.getFilas(); fila++) {
-            for (int columna = 0; columna < tablero.getColumnas(); columna++) {
-                Casilla casilla = tablero.obtenerCasilla(fila, columna);
-                copia[fila][columna] = copiarComoTerrenoBase(tablero, casilla, fila, columna);
-            }
-        }
-        return copia;
-    }
-
-    private Casilla copiarComoTerrenoBase(Tablero tablero, Casilla casilla, int fila, int columna) {
-        if (casilla instanceof Meta) {
-            return new Meta(fila, columna);
-        }
-        if (casilla instanceof Caja caja && caja.isEnMeta()) {
-            return new Meta(fila, columna);
-        }
-        if (casilla instanceof Personaje && tablero.esMeta(fila, columna)) {
-            return new Meta(fila, columna);
-        }
-        if (casilla instanceof Pared) {
-            return new Pared(fila, columna);
-        }
-        return new SueloComun(fila, columna);
-    }
-
-    private Caja copiarCaja(Caja caja) {
-        if (caja == null) {
-            return null;
-        }
-        return new Caja(caja.getFila(), caja.getColumna(), caja.isEnMeta());
-    }
-
-    private Caja copiarCajaEnPosicion(Caja caja, Casilla posicion) {
-        boolean enMeta = caja != null && caja.isEnMeta();
-        return new Caja(posicion.getFila(), posicion.getColumna(), enMeta);
     }
 
     private Casilla copiarCasilla(Casilla casilla) {
         if (casilla == null) {
             return null;
         }
-        if (casilla instanceof Caja caja) {
-            return new Caja(caja.getFila(), caja.getColumna(), caja.isEnMeta());
-        }
-        if (casilla instanceof Meta) {
-            return new Meta(casilla.getFila(), casilla.getColumna());
-        }
-        if (casilla instanceof Pared) {
-            return new Pared(casilla.getFila(), casilla.getColumna());
-        }
-        if (casilla instanceof Personaje) {
-            return new Personaje(casilla.getFila(), casilla.getColumna());
-        }
         return new SueloComun(casilla.getFila(), casilla.getColumna());
-    }
-
-    private boolean posicionValida(int fila, int columna, Tablero tablero) {
-        return fila >= 0 && fila < tablero.getFilas() && columna >= 0 && columna < tablero.getColumnas();
     }
 }

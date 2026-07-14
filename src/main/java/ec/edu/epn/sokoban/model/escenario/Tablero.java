@@ -3,12 +3,16 @@ package ec.edu.epn.sokoban.model.escenario;
 /**
  * La matriz bidimensional del escenario es gestionada.
  */
-public class Tablero {
+public class Tablero extends Casilla {
     private int filas;
     private int columnas;
     private Casilla[][] celdas;
     private boolean[][] metas;
     private Personaje personaje;
+
+    // =========================================================================
+    // 1. Constructores e Inicialización
+    // =========================================================================
 
     /**
      * Un tablero vacio es inicializado.
@@ -24,6 +28,7 @@ public class Tablero {
      * @param columnas cantidad de columnas del tablero
      */
     public Tablero(int filas, int columnas) {
+        super(0, 0);
         validarDimensiones(filas, columnas);
         this.filas = filas;
         this.columnas = columnas;
@@ -31,23 +36,9 @@ public class Tablero {
         this.metas = new boolean[filas][columnas];
     }
 
-    /**
-     * La cantidad de filas es retornada.
-     *
-     * @return cantidad de filas del tablero
-     */
-    public int getFilas() {
-        return filas;
-    }
-
-    /**
-     * La cantidad de columnas es retornada.
-     *
-     * @return cantidad de columnas del tablero
-     */
-    public int getColumnas() {
-        return columnas;
-    }
+    // =========================================================================
+    // 2. Métodos ejecutados durante la creación y carga del mapa
+    // =========================================================================
 
     /**
      * La matriz de casillas es actualizada y sus coordenadas internas son
@@ -88,6 +79,57 @@ public class Tablero {
         if (estaDentroDelTablero(f, c)) {
             this.metas[f][c] = true;
         }
+    }
+
+    private void sincronizarCoordenadas() {
+        for (int fila = 0; fila < filas; fila++) {
+            for (int columna = 0; columna < columnas; columna++) {
+                Casilla casilla = celdas[fila][columna];
+                if (casilla != null) {
+                    casilla.setFila(fila);
+                    casilla.setColumna(columna);
+                    if (casilla instanceof Personaje) {
+                        this.personaje = (Personaje) casilla;
+                    }
+                }
+            }
+        }
+    }
+
+    private void validarDimensiones(int filas, int columnas) {
+        if (filas < 0 || columnas < 0) {
+            throw new IllegalArgumentException("Las dimensiones del tablero no pueden ser negativas.");
+        }
+    }
+
+    private void validarMatrizRectangular(Casilla[][] matriz, int columnasEsperadas) {
+        for (Casilla[] fila : matriz) {
+            if (fila == null || fila.length != columnasEsperadas) {
+                throw new IllegalArgumentException("La matriz de casillas debe ser rectangular.");
+            }
+        }
+    }
+
+    // =========================================================================
+    // 3. Métodos ejecutados durante el juego y consultas de estado
+    // =========================================================================
+
+    /**
+     * La cantidad de filas es retornada.
+     *
+     * @return cantidad de filas del tablero
+     */
+    public int getFilas() {
+        return filas;
+    }
+
+    /**
+     * La cantidad de columnas es retornada.
+     *
+     * @return cantidad de columnas del tablero
+     */
+    public int getColumnas() {
+        return columnas;
     }
 
     /**
@@ -154,40 +196,16 @@ public class Tablero {
         return casilla != null && casilla.esTransitable();
     }
 
+    @Override
+    public boolean esTransitable() {
+        return true;
+    }
+
     private boolean estaDentroDelTablero(int fila, int columna) {
         return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;
     }
 
     public Personaje getPersonaje() {
         return personaje;
-    }
-
-    private void sincronizarCoordenadas() {
-        for (int fila = 0; fila < filas; fila++) {
-            for (int columna = 0; columna < columnas; columna++) {
-                Casilla casilla = celdas[fila][columna];
-                if (casilla != null) {
-                    casilla.setFila(fila);
-                    casilla.setColumna(columna);
-                    if (casilla instanceof Personaje) {
-                        this.personaje = (Personaje) casilla;
-                    }
-                }
-            }
-        }
-    }
-
-    private void validarDimensiones(int filas, int columnas) {
-        if (filas < 0 || columnas < 0) {
-            throw new IllegalArgumentException("Las dimensiones del tablero no pueden ser negativas.");
-        }
-    }
-
-    private void validarMatrizRectangular(Casilla[][] matriz, int columnasEsperadas) {
-        for (Casilla[] fila : matriz) {
-            if (fila == null || fila.length != columnasEsperadas) {
-                throw new IllegalArgumentException("La matriz de casillas debe ser rectangular.");
-            }
-        }
     }
 }

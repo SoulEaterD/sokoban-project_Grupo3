@@ -9,16 +9,16 @@ classDiagram
         -Nivel nivelActual
         -Tablero tableroActual
         -HistorialMovimientos historial
-        -ManejadorColision cadenaColisiones
+        -ReglasJuego reglasJuego
         -GestorPersistencia persistencia
         +JuegoSokoban(List nivelesDisponibles)
         +seleccionarNivel(Nivel nivel) void
         +deshacerUltimaAccion() void
         +reiniciarNivelActual() void
         +agregarNivel(Nivel n) void
-        +getCadenaColisiones() ManejadorColision
+        +getReglasJuego() ReglasJuego
+        +getPersistencia() GestorPersistencia
         +capturarEstadoActual() PartidaMomento
-        +verificarYRegistrarVictoria() void
     }
 
     class Tablero {
@@ -30,8 +30,11 @@ classDiagram
         +Tablero(int filas, int columnas)
         +getFilas() int
         +getColumnas() int
+        +registrarMeta(int f, int c) void
+        +esMeta(int f, int c) bool
         +obtenerCasilla(int f, int c) Casilla
         +actualizarCasilla(int f, int c, Casilla nuevaCasilla) void
+        +esTransitable() bool
         +esTransitable(int f, int c) bool
         +getPersonaje() Personaje
     }
@@ -45,6 +48,7 @@ classDiagram
         +getColumna() int
         +setColumna(int columna) void
         +esTransitable()* bool
+        +esEmpujable() bool
     }
 
     class Personaje {
@@ -55,23 +59,41 @@ classDiagram
     }
 
     class Caja {
+        <<abstract>>
         -bool enMeta
         +Caja(int fila, int columna)
-        +Caja(int fila, int columna, bool enMeta)
-        +mover(Direccion d, Tablero t) bool
+        +Caja(int fila, int columna, boolean enMeta)
+        +mover(Direccion d, Tablero t)* bool
         +isEnMeta() bool
-        +setEnMeta(bool enMeta) void
+        +setEnMeta(boolean enMeta) void
         +esTransitable() bool
+        +esEmpujable() bool
+    }
+
+    class CajaComun {
+        +CajaComun(int fila, int columna)
+        +CajaComun(int fila, int columna, bool enMeta)
+        +mover(Direccion d, Tablero t) bool
     }
 
     class Pared {
+        <<abstract>>
         +Pared(int f, int c)
+    }
+
+    class ParedComun {
+        +ParedComun(int f, int c)
         +esTransitable() bool
     }
 
     class Meta {
         +Meta(int f, int c)
         +esTransitable() bool
+    }
+
+    class Suelo {
+        <<abstract>>
+        +Suelo(int f, int c)
     }
 
     class SueloComun {
@@ -142,6 +164,33 @@ classDiagram
         +procesarMovimiento(Tablero tablero, Casilla origen, Direccion dir) bool
     }
 
+    class ReglasJuego {
+        -ManejadorColision cadenaColisiones
+        +ReglasJuego()
+        +getCadenaColisiones() ManejadorColision
+        +verificarYRegistrarVictoria(Nivel nivelActual, Tablero tableroActual, List nivelesDisponibles, GestorPersistencia persistencia) void
+    }
+
+    class ControladorTeclado {
+        -Personaje personaje
+        -Tablero tablero
+        -ManejadorColision cadenaColisiones
+        -VentanaPrincipal ventanaPrincipal
+        -Runnable antesDeMover
+        -Runnable despuesDeMover
+        -Runnable accionDeshacer
+        -BooleanSupplier checkNivelCompletado
+        +ControladorTeclado(Personaje personaje, Tablero tablero, ManejadorColision cadenaColisiones)
+        +setPersonaje(Personaje personaje) void
+        +setTablero(Tablero tablero) void
+        +setVentanaPrincipal(VentanaPrincipal vp) void
+        +setAntesDeMover(Runnable antesDeMover) void
+        +setDespuesDeMover(Runnable despuesDeMover) void
+        +setAccionDeshacer(Runnable accionDeshacer) void
+        +setCheckNivelCompletado(BooleanSupplier check) void
+        +handle(KeyEvent evento) void
+    }
+
     ManejadorColision <|.. ManejadorPared : implements
     ManejadorColision <|.. ManejadorCaja : implements
     ManejadorColision <|.. ManejadorMovimientoBase : implements
@@ -151,14 +200,21 @@ classDiagram
     Casilla <|-- Caja : extends
     Casilla <|-- Pared : extends
     Casilla <|-- Meta : extends
-    Casilla <|-- SueloComun : extends
+    Casilla <|-- Suelo : extends
+    Casilla <|-- Tablero : extends
+    Suelo <|-- SueloComun : extends
+    Caja <|-- CajaComun : extends
+    Pared <|-- ParedComun : extends
 
     Tablero *--> Casilla : celdas
     Tablero --> Personaje : personaje
     JuegoSokoban --> Tablero : tableroActual
-    JuegoSokoban --> ManejadorColision : cadenaColisiones
+    JuegoSokoban --> ReglasJuego : reglasJuego
     JuegoSokoban --> HistorialMovimientos : historial
     JuegoSokoban --> GestorPersistencia : persistencia
     JuegoSokoban --> Nivel : nivelActual
+    ReglasJuego --> ManejadorColision : cadenaColisiones
     HistorialMovimientos o--> PartidaMomento : historial
+    ControladorTeclado --> Personaje : personaje
+    ControladorTeclado --> Tablero : tablero
 ```

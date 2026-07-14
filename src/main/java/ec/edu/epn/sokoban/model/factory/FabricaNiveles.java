@@ -2,10 +2,11 @@ package ec.edu.epn.sokoban.model.factory;
 
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
-import ec.edu.epn.sokoban.model.escenario.Pared;
+import ec.edu.epn.sokoban.model.escenario.ParedComun;
 import ec.edu.epn.sokoban.model.escenario.SueloComun;
 import ec.edu.epn.sokoban.model.escenario.Meta;
 import ec.edu.epn.sokoban.model.escenario.Caja;
+import ec.edu.epn.sokoban.model.escenario.CajaComun;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 
@@ -43,7 +44,7 @@ public class FabricaNiveles {
 
         switch (simbolo) {
             case "#":
-                return new Pared(fila, columna);
+                return new ParedComun(fila, columna);
 
             case " ":
                 return new SueloComun(fila, columna);
@@ -53,10 +54,10 @@ public class FabricaNiveles {
                 return new Meta(fila, columna);
 
             case "$":
-                return new Caja(fila, columna);
+                return new CajaComun(fila, columna);
 
             case "*":
-                Caja cajaEnMeta = new Caja(fila, columna);
+                Caja cajaEnMeta = new CajaComun(fila, columna);
                 cajaEnMeta.setEnMeta(true);
                 tablero.registrarMeta(fila, columna);
                 return cajaEnMeta;

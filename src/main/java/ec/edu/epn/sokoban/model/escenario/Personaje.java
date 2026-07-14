@@ -65,10 +65,11 @@ public class Personaje extends Casilla {
     }
 
     /**
-     * Inicia la acción de movimiento del personaje delegando en la cadena de gestores de colisión.
+     * Inicia la acción de movimiento del personaje delegando en la cadena de
+     * gestores de colisión.
      *
-     * @param d la dirección del movimiento
-     * @param t el tablero sobre el cual se mueve
+     * @param d                la dirección del movimiento
+     * @param t                el tablero sobre el cual se mueve
      * @param cadenaColisiones la cadena de gestores de colisiones
      * @return true si el movimiento fue exitoso, false en caso contrario
      */

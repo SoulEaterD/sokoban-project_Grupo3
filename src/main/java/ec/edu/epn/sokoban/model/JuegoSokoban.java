@@ -2,7 +2,6 @@ package ec.edu.epn.sokoban.model;
 
 import ec.edu.epn.sokoban.model.escenario.Caja;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
-import ec.edu.epn.sokoban.model.escenario.Meta;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 import ec.edu.epn.sokoban.model.factory.FabricaNiveles;
@@ -10,10 +9,7 @@ import ec.edu.epn.sokoban.model.historial.HistorialMovimientos;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 import ec.edu.epn.sokoban.model.historial.PartidaMomento;
 import ec.edu.epn.sokoban.model.persistencia.GestorPersistencia;
-import ec.edu.epn.sokoban.model.reglas.ManejadorColision;
-import ec.edu.epn.sokoban.model.reglas.ManejadorPared;
-import ec.edu.epn.sokoban.model.reglas.ManejadorCaja;
-import ec.edu.epn.sokoban.model.reglas.ManejadorMovimientoBase;
+import ec.edu.epn.sokoban.model.reglas.ReglasJuego;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,21 +21,50 @@ public class JuegoSokoban {
     private Nivel nivelActual;
     private Tablero tableroActual;
     private HistorialMovimientos historial;
-    private final ManejadorColision cadenaColisiones;
+    private final ReglasJuego reglasJuego;
     private GestorPersistencia persistencia;
+
+    // =========================================================================
+    // 1. Constructor e Inicialización
+    // =========================================================================
 
     public JuegoSokoban(List<Nivel> nivelesDisponibles) {
         this.nivelesDisponibles = nivelesDisponibles != null ? nivelesDisponibles : new ArrayList<>();
         this.historial = new HistorialMovimientos();
-        ManejadorColision manejadorPared = new ManejadorPared();
-        ManejadorColision manejadorCaja = new ManejadorCaja();
-        ManejadorColision manejadorMovBase = new ManejadorMovimientoBase();
-
-        manejadorPared.setSiguiente(manejadorCaja);
-        manejadorCaja.setSiguiente(manejadorMovBase);
-        this.cadenaColisiones = manejadorPared;
+        this.reglasJuego = new ReglasJuego();
         this.persistencia = new GestorPersistencia("progress.txt");
     }
+
+    // =========================================================================
+    // 2. Métodos ejecutados durante la inicialización y selección de nivel
+    // =========================================================================
+
+    public void seleccionarNivel(Nivel nivel) {
+        if (nivel == null || nivel.isCompletado()) {
+            return;
+        }
+
+        FabricaNiveles fabrica = new FabricaNiveles();
+        this.nivelActual = nivel;
+        this.tableroActual = fabrica.construirTablero(nivel);
+        this.historial.vaciarHistorial();
+    }
+
+    public void reiniciarNivelActual() {
+        if (nivelActual != null) {
+            seleccionarNivel(nivelActual);
+        }
+    }
+
+    public void agregarNivel(Nivel n) {
+        if (n != null) {
+            this.nivelesDisponibles.add(n);
+        }
+    }
+
+    // =========================================================================
+    // 3. Métodos ejecutados durante la partida y consultas de estado
+    // =========================================================================
 
     public List<Nivel> getNivelesDisponibles() {
         return nivelesDisponibles;
@@ -53,19 +78,16 @@ public class JuegoSokoban {
         return tableroActual;
     }
 
-    public void seleccionarNivel(Nivel nivel) {
-        if (nivel == null) {
-            return;
-        }
-
-        FabricaNiveles fabrica = new FabricaNiveles();
-        this.nivelActual = nivel;
-        this.tableroActual = fabrica.construirTablero(nivel);
-        this.historial.vaciarHistorial();
+    public ReglasJuego getReglasJuego() {
+        return reglasJuego;
     }
 
-    public ManejadorColision getCadenaColisiones() {
-        return cadenaColisiones;
+    public GestorPersistencia getPersistencia() {
+        return persistencia;
+    }
+
+    public HistorialMovimientos getHistorial() {
+        return historial;
     }
 
     // Depende de la implementación de PartidaMomento.restaurarEnTablero().
@@ -78,22 +100,6 @@ public class JuegoSokoban {
 
         if (ultimoEstado != null) {
             ultimoEstado.restaurarEnTablero(tableroActual);
-        }
-    }
-
-    public void reiniciarNivelActual() {
-        if (nivelActual != null) {
-            seleccionarNivel(nivelActual);
-        }
-    }
-
-    public HistorialMovimientos getHistorial() {
-        return historial;
-    }
-
-    public void agregarNivel(Nivel n) {
-        if (n != null) {
-            this.nivelesDisponibles.add(n);
         }
     }
 
@@ -116,38 +122,5 @@ public class JuegoSokoban {
         }
 
         return new PartidaMomento(posicionesCajas, posicionJugador);
-    }
-
-    public void verificarYRegistrarVictoria() {
-        if (nivelActual == null || tableroActual == null) {
-            return;
-        }
-
-        // Según el UML, una Meta ocupada se representa con Caja.enMeta.
-        boolean hayMetaPendiente = false;
-        boolean hayCajaEnMeta = false;
-
-        for (int f = 0; f < tableroActual.getFilas(); f++) {
-            for (int c = 0; c < tableroActual.getColumnas(); c++) {
-                Casilla casilla = tableroActual.obtenerCasilla(f, c);
-
-                if (casilla instanceof Meta) {
-                    hayMetaPendiente = true;
-                }
-
-                if (casilla instanceof Personaje && tableroActual.esMeta(f, c)) {
-                    hayMetaPendiente = true;
-                }
-
-                if (casilla instanceof Caja && ((Caja) casilla).isEnMeta()) {
-                    hayCajaEnMeta = true;
-                }
-            }
-        }
-
-        if (!hayMetaPendiente && hayCajaEnMeta) {
-            nivelActual.marcarComoCompletado();
-            persistencia.guardarProgreso(nivelesDisponibles);
-        }
     }
 }

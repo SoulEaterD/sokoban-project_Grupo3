@@ -5,7 +5,7 @@ import ec.edu.epn.sokoban.Direccion;
 /**
  * Una caja del escenario es representada como una casilla no transitable.
  */
-public class Caja extends Casilla {
+public abstract class Caja extends Casilla {
     private boolean enMeta;
 
     /**
@@ -27,29 +27,7 @@ public class Caja extends Casilla {
      * @param t el tablero sobre el cual se mueve
      * @return true si el movimiento fue ejecutado, false en caso contrario
      */
-    public boolean mover(Direccion d, Tablero t) {
-        if (d == null || t == null) {
-            return false;
-        }
-
-        int filaOrigen = getFila();
-        int columnaOrigen = getColumna();
-        int filaDestino = filaOrigen + d.getDeltaFila();
-        int columnaDestino = columnaOrigen + d.getDeltaColumna();
-
-        Casilla destino = t.obtenerCasilla(filaDestino, columnaDestino);
-        boolean posteriorEsMeta = destino instanceof Meta;
-
-        // Cambiar estado de enMeta en la caja
-        setEnMeta(posteriorEsMeta);
-
-        // Mutar coordenadas internas
-        setFila(filaDestino);
-        setColumna(columnaDestino);
-
-        t.actualizarCasilla(filaDestino, columnaDestino, this);
-        return true;
-    }
+    public abstract boolean mover(Direccion d, Tablero t);
 
     /**
      * Una caja es inicializada con su estado de meta.
@@ -89,5 +67,10 @@ public class Caja extends Casilla {
     @Override
     public boolean esTransitable() {
         return false;
+    }
+
+    @Override
+    public boolean esEmpujable() {
+        return true;
     }
 }

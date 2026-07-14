@@ -1,10 +1,13 @@
 package ec.edu.epn.sokoban.model.escenario;
 
+/**
+ * Clase abstracta que representa el componente base del escenario.
+ */
 public abstract class Casilla {
     private int fila;
     private int columna;
 
-    public Casilla(){}
+    public Casilla() {}
 
     public Casilla(int fila, int columna) {
         this.fila = fila;
@@ -28,4 +31,8 @@ public abstract class Casilla {
     }
 
     public abstract boolean esTransitable();
+
+    public boolean esEmpujable() {
+        return false;
+    }
 }

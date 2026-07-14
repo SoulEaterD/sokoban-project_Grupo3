@@ -3,8 +3,6 @@ package ec.edu.epn.sokoban.model.reglas;
 import ec.edu.epn.sokoban.Direccion;
 import ec.edu.epn.sokoban.model.escenario.Caja;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
-import ec.edu.epn.sokoban.model.escenario.Meta;
-import ec.edu.epn.sokoban.model.escenario.Pared;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
 import ec.edu.epn.sokoban.model.escenario.SueloComun;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
@@ -31,37 +29,38 @@ public class ManejadorCaja implements ManejadorColision {
         int columnaDestino = origen.getColumna() + dir.getDeltaColumna();
 
         Casilla destino = tablero.obtenerCasilla(filaDestino, columnaDestino);
-        if (destino instanceof Caja caja) {
-            int filaTrasCaja = filaDestino + dir.getDeltaFila();
-            int columnaTrasCaja = columnaDestino + dir.getDeltaColumna();
+        if (destino != null && destino.esEmpujable()) {
+            Caja caja = (Caja) destino;
+            // Si la caja ya está sobre una meta, no se puede volver a mover
+            if (tablero.esMeta(filaDestino, columnaDestino)) {
+                return false;
+            }
+
+            int filaDestinoCaja = filaDestino + dir.getDeltaFila();
+            int columnaDestinoCaja = columnaDestino + dir.getDeltaColumna();
 
             // Validar límites del tablero tras la caja
-            if (filaTrasCaja < 0 || filaTrasCaja >= tablero.getFilas() ||
-                columnaTrasCaja < 0 || columnaTrasCaja >= tablero.getColumnas()) {
+            if (filaDestinoCaja < 0 || filaDestinoCaja >= tablero.getFilas() ||
+                columnaDestinoCaja < 0 || columnaDestinoCaja >= tablero.getColumnas()) {
                 return false;
             }
 
-            Casilla casillaTrasCaja = tablero.obtenerCasilla(filaTrasCaja, columnaTrasCaja);
+            Casilla casillaDestinoCaja = tablero.obtenerCasilla(filaDestinoCaja, columnaDestinoCaja);
             
-            // Validar que la casilla tras la caja no esté ocupada por otra caja o por una pared
-            if (casillaTrasCaja == null || casillaTrasCaja instanceof Pared || casillaTrasCaja instanceof Caja) {
+            // Validar que la casilla tras la caja sea transitable
+            if (casillaDestinoCaja == null || !casillaDestinoCaja.esTransitable()) {
                 return false;
             }
-
-            // Si es transitable (SueloComun o Meta), procedemos a realizar la traslación
-            boolean posteriorEsMeta = casillaTrasCaja instanceof Meta;
-            boolean cajaEstabaEnMeta = tablero.esMeta(filaDestino, columnaDestino);
 
             // Mover la caja a su nueva posición usando su comportamiento autónomo
             caja.mover(dir, tablero);
 
-            // Liberar la casilla de donde vino la caja
-            Casilla casillaLiberada = cajaEstabaEnMeta
-                    ? new Meta(filaDestino, columnaDestino)
-                    : new SueloComun(filaDestino, columnaDestino);
+            // Liberar la casilla de donde vino la caja (siempre será SueloComun,
+            // porque si hubiese estado sobre una Meta el movimiento habría sido bloqueado al inicio)
+            Casilla casillaLiberada = new SueloComun(filaDestino, columnaDestino);
             tablero.actualizarCasilla(filaDestino, columnaDestino, casillaLiberada);
 
-            // Desplazar al operario a la casilla liberada usando su comportamiento autónomo
+            // Desplazar al personaje a la casilla liberada usando su comportamiento autónomo
             if (origen instanceof Personaje personaje) {
                 personaje.mover(dir, tablero);
             }
