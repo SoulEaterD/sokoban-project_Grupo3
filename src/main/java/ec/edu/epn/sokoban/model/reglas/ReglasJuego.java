@@ -1,66 +1,42 @@
 package ec.edu.epn.sokoban.model.reglas;
 
-import ec.edu.epn.sokoban.model.escenario.Caja;
-import ec.edu.epn.sokoban.model.escenario.Casilla;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
-import ec.edu.epn.sokoban.model.historial.Nivel;
-import ec.edu.epn.sokoban.model.persistencia.GestorPersistencia;
 
-import java.util.List;
-
-/**
- * Clase encargada de definir las reglas de negocio generales del juego,
- * incluyendo el gestor de colisiones único y la verificación de victoria.
- */
-public class ReglasJuego {
+/** Reglas generales asociadas al tablero de la partida actual. */
+public final class ReglasJuego {
     private final GestorColisiones gestorColisiones;
+    private Tablero tablero;
 
     public ReglasJuego() {
         this.gestorColisiones = new GestorColisiones();
+    }
+
+    public void asociarTablero(Tablero tablero) {
+        this.tablero = tablero;
     }
 
     public GestorColisiones getGestorColisiones() {
         return gestorColisiones;
     }
 
-    /**
-     * Verifica si se han cumplido las condiciones de victoria para el nivel actual
-     * y, de ser así, guarda el progreso del juego.
-     *
-     * @param nivelActual        el nivel que se está jugando
-     * @param tableroActual      el tablero con el estado actual
-     * @param nivelesDisponibles la lista de todos los niveles cargados
-     * @param persistencia       el gestor de persistencia del progreso
-     */
-    public void verificarYRegistrarVictoria(
-            Nivel nivelActual, 
-            Tablero tableroActual, 
-            List<Nivel> nivelesDisponibles, 
-            GestorPersistencia persistencia) {
-        if (nivelActual == null || tableroActual == null) {
-            return;
+    /** Itera las metas del tablero asociado y comprueba que todas contengan caja. */
+    public boolean verificarVictoria() {
+        if (tablero == null) {
+            return false;
         }
 
-        boolean todasMetasSatisfechas = true;
-        boolean algunaMetaExiste = false;
-
-        for (int f = 0; f < tableroActual.getFilas(); f++) {
-            for (int c = 0; c < tableroActual.getColumnas(); c++) {
-                if (tableroActual.esMeta(f, c)) {
-                    algunaMetaExiste = true;
-                    Casilla casilla = tableroActual.obtenerCasilla(f, c);
-                    if (!(casilla instanceof Caja)) {
-                        todasMetasSatisfechas = false;
+        boolean existeMeta = false;
+        for (int fila = 0; fila < tablero.getFilas(); fila++) {
+            for (int columna = 0; columna < tablero.getColumnas(); columna++) {
+                if (tablero.esMeta(fila, columna)) {
+                    existeMeta = true;
+                    if (tablero.obtenerCaja(fila, columna) == null) {
+                        return false;
                     }
                 }
             }
         }
-
-        if (algunaMetaExiste && todasMetasSatisfechas) {
-            nivelActual.marcarComoCompletado();
-            if (persistencia != null) {
-                persistencia.guardarProgreso(nivelesDisponibles);
-            }
-        }
+        return existeMeta;
     }
+
 }

@@ -20,41 +20,6 @@ public class Personaje extends Casilla {
     }
 
     /**
-     * Mueve el personaje en el tablero en la dirección dada, actualizando sus
-     * coordenadas internas y actualizando las celdas afectadas del tablero.
-     *
-     * @param d la dirección del movimiento
-     * @param t el tablero sobre el cual se mueve
-     * @return true si el movimiento fue exitoso, false en caso contrario
-     */
-    public boolean mover(Direccion d, Tablero t) {
-        if (d == null || t == null) {
-            return false;
-        }
-
-        int filaOrigen = getFila();
-        int columnaOrigen = getColumna();
-        int filaDestino = filaOrigen + d.getDeltaFila();
-        int columnaDestino = columnaOrigen + d.getDeltaColumna();
-
-        if (!t.esTransitable(filaDestino, columnaDestino)) {
-            return false;
-        }
-
-        Casilla casillaLiberada = t.esMeta(filaOrigen, columnaOrigen)
-                ? new Meta(filaOrigen, columnaOrigen)
-                : new Suelo(filaOrigen, columnaOrigen);
-
-        t.actualizarCasilla(filaOrigen, columnaOrigen, casillaLiberada);
-
-        setFila(filaDestino);
-        setColumna(columnaDestino);
-
-        t.actualizarCasilla(filaDestino, columnaDestino, this);
-        return true;
-    }
-
-    /**
      * Inicia la acción de movimiento del personaje usando el gestor de colisión único.
      *
      * @param d                la dirección del movimiento
@@ -66,7 +31,9 @@ public class Personaje extends Casilla {
         if (d == null || t == null || gestorColisiones == null) {
             return false;
         }
-        return gestorColisiones.procesarMovimiento(t, this, d);
+        int filaDestino = getFila() + d.getDeltaFila();
+        int columnaDestino = getColumna() + d.getDeltaColumna();
+        return gestorColisiones.procesarMovimiento(t, this, filaDestino, columnaDestino);
     }
 
     @Override

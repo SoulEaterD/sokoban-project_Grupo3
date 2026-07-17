@@ -47,6 +47,7 @@ public class JuegoSokoban {
         FabricaNiveles fabrica = new FabricaNiveles();
         this.nivelActual = nivel;
         this.tableroActual = fabrica.construirTablero(nivel);
+        this.reglasJuego.asociarTablero(this.tableroActual);
         this.historial.vaciarHistorial();
     }
 
@@ -122,5 +123,12 @@ public class JuegoSokoban {
         }
 
         return new PartidaMomento(posicionesCajas, posicionJugador);
+    }
+
+    public void verificarYRegistrarVictoria() {
+        if (nivelActual != null && reglasJuego.verificarVictoria()) {
+            nivelActual.marcarComoCompletado();
+            persistencia.guardarProgreso(nivelesDisponibles);
+        }
     }
 }

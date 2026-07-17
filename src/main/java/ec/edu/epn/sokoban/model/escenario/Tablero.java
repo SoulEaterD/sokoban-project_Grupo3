@@ -126,8 +126,41 @@ public class Tablero extends Casilla implements Transitable {
         return casilla != null && casilla instanceof Transitable && ((Transitable) casilla).esTransitable();
     }
 
-    private boolean estaDentroDelTablero(int fila, int columna) {
+    public boolean estaDentroDelTablero(int fila, int columna) {
         return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;
+    }
+
+    public Caja obtenerCaja(int fila, int columna) {
+        Casilla casilla = obtenerCasilla(fila, columna);
+        return casilla instanceof Caja ? (Caja) casilla : null;
+    }
+
+    public void moverPersonaje(Personaje personaje, int filaDestino, int columnaDestino) {
+        if (personaje == null || personaje != this.personaje
+                || !estaDentroDelTablero(filaDestino, columnaDestino)) {
+            throw new IllegalArgumentException("Movimiento de personaje inválido");
+        }
+        liberarPosicion(personaje.getFila(), personaje.getColumna());
+        personaje.setFila(filaDestino);
+        personaje.setColumna(columnaDestino);
+        actualizarCasilla(filaDestino, columnaDestino, personaje);
+    }
+
+    public void moverCaja(Caja caja, int filaDestino, int columnaDestino) {
+        if (caja == null || obtenerCaja(caja.getFila(), caja.getColumna()) != caja
+                || !estaDentroDelTablero(filaDestino, columnaDestino)) {
+            throw new IllegalArgumentException("Movimiento de caja inválido");
+        }
+        liberarPosicion(caja.getFila(), caja.getColumna());
+        caja.setFila(filaDestino);
+        caja.setColumna(columnaDestino);
+        caja.setEnMeta(esMeta(filaDestino, columnaDestino));
+        actualizarCasilla(filaDestino, columnaDestino, caja);
+    }
+
+    private void liberarPosicion(int fila, int columna) {
+        actualizarCasilla(fila, columna,
+                esMeta(fila, columna) ? new Meta(fila, columna) : new Suelo(fila, columna));
     }
 
     public Personaje getPersonaje() {
