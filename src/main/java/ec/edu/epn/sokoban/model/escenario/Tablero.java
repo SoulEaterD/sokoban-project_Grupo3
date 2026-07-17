@@ -1,34 +1,48 @@
 package ec.edu.epn.sokoban.model.escenario;
 
-import ec.edu.epn.sokoban.Direccion;
+import ec.edu.epn.sokoban.model.interfaces.Transitable;
+import ec.edu.epn.sokoban.model.interfaces.Dibujador;
 
 /**
  * La matriz bidimensional del escenario es gestionada.
  */
-public class Tablero {
+public class Tablero extends Casilla {
     private int filas;
     private int columnas;
     private Casilla[][] celdas;
+    private boolean[][] metas;
+    private Personaje personaje;
+
+    // =========================================================================
+    // 1. Constructores e Inicialización
+    // =========================================================================
 
     /**
      * Un tablero vacio es inicializado.
      */
     public Tablero() {
-        this(0, 0);
+        this(new Casilla[0][0], new boolean[0][0], null);
     }
 
     /**
-     * Un tablero es inicializado con dimensiones definidas.
+     * Un tablero es inicializado con su matriz de celdas, metas y personaje.
      *
-     * @param filas    cantidad de filas del tablero
-     * @param columnas cantidad de columnas del tablero
+     * @param celdas    matriz bidimensional de casillas
+     * @param metas     matriz de metas del tablero
+     * @param personaje personaje ubicado en el tablero
      */
-    public Tablero(int filas, int columnas) {
-        validarDimensiones(filas, columnas);
-        this.filas = filas;
-        this.columnas = columnas;
-        this.celdas = new Casilla[filas][columnas];
+    public Tablero(Casilla[][] celdas, boolean[][] metas, Personaje personaje) {
+        super(0, 0);
+        this.celdas = celdas != null ? celdas : new Casilla[0][0];
+        this.metas = metas != null ? metas : new boolean[0][0];
+        this.filas = this.celdas.length;
+        this.columnas = this.filas > 0 ? this.celdas[0].length : 0;
+        this.personaje = personaje;
     }
+
+    // =========================================================================
+    // 2. Métodos ejecutados durante el juego y consultas de estado
+    // =========================================================================
 
     /**
      * La cantidad de filas es retornada.
@@ -37,17 +51,6 @@ public class Tablero {
      */
     public int getFilas() {
         return filas;
-    }
-
-    /**
-     * La cantidad de filas es actualizada y la matriz es reinicializada.
-     *
-     * @param filas nueva cantidad de filas
-     */
-    public void setFilas(int filas) {
-        validarDimensiones(filas, this.columnas);
-        this.filas = filas;
-        this.celdas = new Casilla[filas][columnas];
     }
 
     /**
@@ -60,47 +63,14 @@ public class Tablero {
     }
 
     /**
-     * La cantidad de columnas es actualizada y la matriz es reinicializada.
+     * Verifica si la coordenada dada es una meta registrada.
      *
-     * @param columnas nueva cantidad de columnas
+     * @param f fila
+     * @param c columna
+     * @return true si es una meta, false en caso contrario
      */
-    public void setColumnas(int columnas) {
-        validarDimensiones(this.filas, columnas);
-        this.columnas = columnas;
-        this.celdas = new Casilla[filas][columnas];
-    }
-
-    /**
-     * La matriz de casillas es retornada.
-     *
-     * @return matriz bidimensional de casillas
-     */
-    public Casilla[][] getCeldas() {
-        return celdas;
-    }
-
-    /**
-     * La matriz de casillas es actualizada y sus coordenadas internas son
-     * sincronizadas.
-     *
-     * @param celdas nueva matriz bidimensional de casillas
-     */
-    public void setCeldas(Casilla[][] celdas) {
-        if (celdas == null) {
-            this.filas = 0;
-            this.columnas = 0;
-            this.celdas = new Casilla[0][0];
-            return;
-        }
-
-        int nuevasFilas = celdas.length;
-        int nuevasColumnas = nuevasFilas == 0 ? 0 : celdas[0].length;
-        validarMatrizRectangular(celdas, nuevasColumnas);
-
-        this.filas = nuevasFilas;
-        this.columnas = nuevasColumnas;
-        this.celdas = celdas;
-        sincronizarCoordenadas();
+    public boolean esMeta(int f, int c) {
+        return estaDentroDelTablero(f, c) && metas[f][c];
     }
 
     /**
@@ -130,50 +100,46 @@ public class Tablero {
         }
 
         if (nuevaCasilla != null) {
+            int oldFila = nuevaCasilla.getFila();
+            int oldColumna = nuevaCasilla.getColumna();
+
+            if ((nuevaCasilla instanceof Personaje || nuevaCasilla instanceof Caja)
+                    && (estaDentroDelTablero(oldFila, oldColumna) && celdas[oldFila][oldColumna] == nuevaCasilla)
+                    && (oldFila != f || oldColumna != c)) {
+                liberarPosicion(oldFila, oldColumna);
+            } else if (nuevaCasilla instanceof Personaje || nuevaCasilla instanceof Caja) {
+                // Si por alguna razón sus coordenadas internas ya fueron modificadas pero el objeto
+                // sigue registrado en el tablero en su posición antigua, lo buscamos y liberamos.
+                boolean encontrado = false;
+                for (int fIdx = 0; fIdx < filas; fIdx++) {
+                    for (int cIdx = 0; cIdx < columnas; cIdx++) {
+                        if (celdas[fIdx][cIdx] == nuevaCasilla) {
+                            if (fIdx != f || cIdx != c) {
+                                liberarPosicion(fIdx, cIdx);
+                            }
+                            encontrado = true;
+                            break;
+                        }
+                    }
+                    if (encontrado) {
+                        break;
+                    }
+                }
+            }
+
             nuevaCasilla.setFila(f);
             nuevaCasilla.setColumna(c);
+
+            if (nuevaCasilla instanceof Meta) {
+                this.metas[f][c] = true;
+            } else if (nuevaCasilla instanceof Personaje) {
+                this.personaje = (Personaje) nuevaCasilla;
+            } else if (nuevaCasilla instanceof Caja) {
+                ((Caja) nuevaCasilla).setEnMeta(esMeta(f, c));
+            }
         }
 
         celdas[f][c] = nuevaCasilla;
-    }
-
-    /**
-     * El personaje es desplazado en una direccion cuando la casilla destino es
-     * transitable.
-     *
-     * @param d direccion de movimiento solicitada
-     * @return true si el movimiento fue aplicado; false en caso contrario
-     */
-    public boolean moverOperario(Direccion d) {
-        if (d == null) {
-            return false;
-        }
-
-        Personaje personaje = buscarPersonaje();
-        if (personaje == null) {
-            return false;
-        }
-
-        int filaOrigen = personaje.getFila();
-        int columnaOrigen = personaje.getColumna();
-        int filaDestino = filaOrigen + d.getDeltaFila();
-        int columnaDestino = columnaOrigen + d.getDeltaColumna();
-
-        if (!esTransitable(filaDestino, columnaDestino)) {
-            return false;
-        }
-
-        Casilla destino = obtenerCasilla(filaDestino, columnaDestino);
-        boolean destinoEsMeta = (destino instanceof Meta);
-
-        Casilla casillaLiberada = personaje.isEnMeta()
-                ? new Meta(filaOrigen, columnaOrigen)
-                : new SueloComun(filaOrigen, columnaOrigen);
-
-        actualizarCasilla(filaOrigen, columnaOrigen, casillaLiberada);
-        personaje.setEnMeta(destinoEsMeta);
-        actualizarCasilla(filaDestino, columnaDestino, personaje);
-        return true;
     }
 
     /**
@@ -184,50 +150,31 @@ public class Tablero {
      * @return true si la coordenada contiene una casilla transitable; false en caso
      *         contrario
      */
-    public boolean esTransitable(int f, int c) {
+    public boolean esCeldaTransitable(int f, int c) {
         Casilla casilla = obtenerCasilla(f, c);
-        return casilla != null && casilla.esTransitable();
+        return casilla != null && casilla instanceof Transitable && ((Transitable) casilla).esTransitable();
     }
 
-    private boolean estaDentroDelTablero(int fila, int columna) {
+    public boolean estaDentroDelTablero(int fila, int columna) {
         return fila >= 0 && fila < filas && columna >= 0 && columna < columnas;
     }
 
-    private Personaje buscarPersonaje() {
-        for (int fila = 0; fila < filas; fila++) {
-            for (int columna = 0; columna < columnas; columna++) {
-                Casilla casilla = celdas[fila][columna];
-                if (casilla instanceof Personaje personaje) {
-                    return personaje;
-                }
-            }
-        }
-        return null;
+    public Caja obtenerCaja(int fila, int columna) {
+        Casilla casilla = obtenerCasilla(fila, columna);
+        return casilla instanceof Caja ? (Caja) casilla : null;
     }
 
-    private void sincronizarCoordenadas() {
-        for (int fila = 0; fila < filas; fila++) {
-            for (int columna = 0; columna < columnas; columna++) {
-                Casilla casilla = celdas[fila][columna];
-                if (casilla != null) {
-                    casilla.setFila(fila);
-                    casilla.setColumna(columna);
-                }
-            }
-        }
+    private void liberarPosicion(int fila, int columna) {
+        actualizarCasilla(fila, columna,
+                esMeta(fila, columna) ? new Meta(fila, columna) : new Suelo(fila, columna));
     }
 
-    private void validarDimensiones(int filas, int columnas) {
-        if (filas < 0 || columnas < 0) {
-            throw new IllegalArgumentException("Las dimensiones del tablero no pueden ser negativas.");
-        }
+    public Personaje getPersonaje() {
+        return personaje;
     }
 
-    private void validarMatrizRectangular(Casilla[][] matriz, int columnasEsperadas) {
-        for (Casilla[] fila : matriz) {
-            if (fila == null || fila.length != columnasEsperadas) {
-                throw new IllegalArgumentException("La matriz de casillas debe ser rectangular.");
-            }
-        }
+    @Override
+    public <T> void dibujar(Dibujador<T> dibujador, T contenedor, int tamCelda) {
+        // El tablero en sí no se dibuja como una celda individual.
     }
 }

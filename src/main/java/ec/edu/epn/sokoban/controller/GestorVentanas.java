@@ -35,8 +35,37 @@ public class GestorVentanas {
 
         VentanaPrincipal ventana = new VentanaPrincipal(juego, tablero, this);
 
-        ControladorTeclado controlador = new ControladorTeclado(juego);
-        controlador.setVentanaPrincipal(ventana, tablero);
+        class FlujoMovimiento {
+            ec.edu.epn.sokoban.model.historial.PartidaMomento estadoAnterior;
+        }
+        final FlujoMovimiento flujo = new FlujoMovimiento();
+
+        ControladorTeclado controlador = new ControladorTeclado(
+            tablero.getPersonaje(), 
+            tablero, 
+            juego.getReglasJuego().getGestorColisiones()
+        );
+        controlador.setVentanaPrincipal(ventana);
+        controlador.setCheckNivelCompletado(() -> juego.getNivelActual() != null && juego.getNivelActual().isCompletado());
+        
+        controlador.setAntesDeMover(() -> {
+            flujo.estadoAnterior = juego.capturarEstadoActual();
+        });
+        
+        controlador.setDespuesDeMover(() -> {
+            if (flujo.estadoAnterior != null) {
+                juego.getHistorial().registrarEstado(flujo.estadoAnterior);
+                flujo.estadoAnterior = null;
+            }
+            juego.verificarYRegistrarVictoria();
+        });
+        
+        controlador.setAccionDeshacer(() -> {
+            juego.deshacerUltimaAccion();
+            ventana.actualizarTablero(juego.getTableroActual());
+            ventana.actualizarEstadisticas();
+        });
+        
         ventana.setControladorTeclado(controlador);
 
         Scene scene = new Scene(ventana, 1280, 720);
@@ -62,7 +91,9 @@ public class GestorVentanas {
 
         Nivel nivel = juego.getNivelesDisponibles().get(numeroNivel - 1);
         juego.seleccionarNivel(nivel);
-        mostrarJuego(juego.getTableroActual());
+        if (juego.getNivelActual() == nivel) {
+            mostrarJuego(juego.getTableroActual());
+        }
     }
 
     /**

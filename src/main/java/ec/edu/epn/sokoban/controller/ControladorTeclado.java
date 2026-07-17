@@ -1,42 +1,78 @@
 package ec.edu.epn.sokoban.controller;
 
 import ec.edu.epn.sokoban.Direccion;
-import ec.edu.epn.sokoban.model.JuegoSokoban;
+import ec.edu.epn.sokoban.model.escenario.Personaje;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
+import ec.edu.epn.sokoban.model.reglas.GestorColisiones;
 import ec.edu.epn.sokoban.view.VentanaPrincipal;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import java.util.function.BooleanSupplier;
 
-// implementacion de EventHandler<KeyEvent> para que JavaFX lo reconozca
+/**
+ * Event handler de teclado de JavaFX.
+ * Se comunica directamente con la clase Personaje y Tablero para invocar el movimiento,
+ * utilizando el GestorColisiones único.
+ */
 public class ControladorTeclado implements EventHandler<KeyEvent> {
-    private final JuegoSokoban juego;
-    private VentanaPrincipal ventanaPrincipal;
+    private Personaje personaje;
     private Tablero tablero;
+    private final GestorColisiones gestorColisiones;
+    private VentanaPrincipal ventanaPrincipal;
+    private Runnable antesDeMover;
+    private Runnable despuesDeMover;
+    private Runnable accionDeshacer;
+    private BooleanSupplier checkNivelCompletado;
 
-    public ControladorTeclado(JuegoSokoban juego) {
-        this.juego = juego;
-    }
-
-    public void setVentanaPrincipal(VentanaPrincipal ventanaPrincipal, Tablero tablero) {
-        this.ventanaPrincipal = ventanaPrincipal;
+    public ControladorTeclado(Personaje personaje, Tablero tablero, GestorColisiones gestorColisiones) {
+        this.personaje = personaje;
         this.tablero = tablero;
+        this.gestorColisiones = gestorColisiones;
     }
 
-    // nativo de escucha de JavaFX para presionar una tecla
+    public void setPersonaje(Personaje personaje) {
+        this.personaje = personaje;
+    }
+
+    public void setTablero(Tablero tablero) {
+        this.tablero = tablero;
+        if (tablero != null) {
+            this.personaje = tablero.getPersonaje();
+        }
+    }
+
+    public void setVentanaPrincipal(VentanaPrincipal ventanaPrincipal) {
+        this.ventanaPrincipal = ventanaPrincipal;
+    }
+
+    public void setAntesDeMover(Runnable antesDeMover) {
+        this.antesDeMover = antesDeMover;
+    }
+
+    public void setDespuesDeMover(Runnable despuesDeMover) {
+        this.despuesDeMover = despuesDeMover;
+    }
+
+    public void setAccionDeshacer(Runnable accionDeshacer) {
+        this.accionDeshacer = accionDeshacer;
+    }
+
+    public void setCheckNivelCompletado(BooleanSupplier checkNivelCompletado) {
+        this.checkNivelCompletado = checkNivelCompletado;
+    }
+
     @Override
     public void handle(KeyEvent evento) {
-        if (juego.getNivelActual() != null && juego.getNivelActual().isCompletado()) {
+        if (checkNivelCompletado != null && checkNivelCompletado.getAsBoolean()) {
             return;
         }
         KeyCode codigo = evento.getCode();
 
-        // linea de control de IntelliJ si detecta las teclas
         System.out.println(">>> Tecla detectada en controlador: " + codigo);
 
         Direccion direccionElegida = null;
 
-        // esquema de las teclas WASD, Flechas y retroceso (Undo)
         switch (codigo) {
             case UP:
             case W:
@@ -57,23 +93,29 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
             case Z:
             case BACK_SPACE:
             case U:
-                this.juego.deshacerUltimaAccion();
-                if (ventanaPrincipal != null && this.tablero != null) {
-                    ventanaPrincipal.actualizarTablero(this.tablero);
-                    ventanaPrincipal.actualizarEstadisticas();
+                if (accionDeshacer != null) {
+                    accionDeshacer.run();
                 }
                 return;
             default:
                 return; // Ignora cualquier otra tecla
         }
 
-        if (direccionElegida != null) {
-            // Modifica las posiciones lógicas en el modelo
-            this.juego.procesarEntrada(direccionElegida);
+        if (direccionElegida != null && personaje != null && tablero != null && gestorColisiones != null) {
+            if (antesDeMover != null) {
+                antesDeMover.run();
+            }
 
-            if (ventanaPrincipal != null && this.tablero != null) {
-                ventanaPrincipal.actualizarTablero(this.tablero);
-                ventanaPrincipal.actualizarEstadisticas();
+            boolean movimientoRealizado = personaje.mover(direccionElegida, tablero, gestorColisiones);
+
+            if (movimientoRealizado) {
+                if (despuesDeMover != null) {
+                    despuesDeMover.run();
+                }
+                if (ventanaPrincipal != null) {
+                    ventanaPrincipal.actualizarTablero(tablero);
+                    ventanaPrincipal.actualizarEstadisticas();
+                }
             }
         }
     }

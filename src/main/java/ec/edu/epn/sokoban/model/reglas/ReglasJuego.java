@@ -1,71 +1,42 @@
 package ec.edu.epn.sokoban.model.reglas;
 
-import ec.edu.epn.sokoban.model.escenario.Casilla;
-import ec.edu.epn.sokoban.model.escenario.Meta;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
-import ec.edu.epn.sokoban.Direccion;
-import ec.edu.epn.sokoban.model.escenario.Caja;
-import java.util.List;
 
-public class ReglasJuego {
+/** Reglas generales asociadas al tablero de la partida actual. */
+public final class ReglasJuego {
+    private final GestorColisiones gestorColisiones;
+    private Tablero tablero;
 
     public ReglasJuego() {
+        this.gestorColisiones = new GestorColisiones();
     }
 
-    public boolean validarMovimiento(Casilla origen, Direccion d, Tablero t) {
-        if (origen == null || d == null || t == null) {
-            return false;
-        }
-
-        int filaDestino = origen.getFila() + d.getDeltaFila();
-        int columnaDestino = origen.getColumna() + d.getDeltaColumna();
-
-        if (filaDestino < 0 || filaDestino >= t.getFilas()
-                || columnaDestino < 0 || columnaDestino >= t.getColumnas()) {
-            return false;
-        }
-
-        Casilla destino = t.obtenerCasilla(filaDestino, columnaDestino);
-
-        if (destino == null) {
-            return false;
-        }
-
-        if (destino instanceof Caja) {
-            if (((Caja) destino).isEnMeta()) {
-                return false;
-            }
-            int filaTrasCaja = filaDestino + d.getDeltaFila();
-            int columnaTrasCaja = columnaDestino + d.getDeltaColumna();
-
-            if (filaTrasCaja < 0 || filaTrasCaja >= t.getFilas()
-                    || columnaTrasCaja < 0 || columnaTrasCaja >= t.getColumnas()) {
-                return false;
-            }
-
-            Casilla casillaTrasCaja = t.obtenerCasilla(filaTrasCaja, columnaTrasCaja);
-
-            if (casillaTrasCaja == null) {
-                return false;
-            }
-
-            return casillaTrasCaja.esTransitable();
-        }
-
-        return destino.esTransitable();
+    public void asociarTablero(Tablero tablero) {
+        this.tablero = tablero;
     }
 
-    public boolean verificarVictoria(List<Meta> metas) {
-        if (metas == null || metas.isEmpty()) {
+    public GestorColisiones getGestorColisiones() {
+        return gestorColisiones;
+    }
+
+    /** Itera las metas del tablero asociado y comprueba que todas contengan caja. */
+    public boolean verificarVictoria() {
+        if (tablero == null) {
             return false;
         }
 
-        for (Meta meta : metas) {
-            if (!meta.isSatisfecha()) {
-                return false;
+        boolean existeMeta = false;
+        for (int fila = 0; fila < tablero.getFilas(); fila++) {
+            for (int columna = 0; columna < tablero.getColumnas(); columna++) {
+                if (tablero.esMeta(fila, columna)) {
+                    existeMeta = true;
+                    if (tablero.obtenerCaja(fila, columna) == null) {
+                        return false;
+                    }
+                }
             }
         }
-
-        return true;
+        return existeMeta;
     }
+
 }

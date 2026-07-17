@@ -69,7 +69,7 @@ public class VentanaPrincipal extends BorderPane {
             Tablero nuevoTablero = juego.getTableroActual();
             actualizarTablero(nuevoTablero);
             if (controladorTeclado != null) {
-                controladorTeclado.setVentanaPrincipal(this, nuevoTablero);
+                controladorTeclado.setTablero(nuevoTablero);
             }
             actualizarEstadisticas();
         });
@@ -461,8 +461,7 @@ public class VentanaPrincipal extends BorderPane {
                         "-fx-border-width: 3;" +
                         "-fx-border-radius: 16;" +
                         "-fx-max-width: 450px;" +
-                        "-fx-max-height: 280px;"
-        );
+                        "-fx-max-height: 280px;");
 
         DropShadow sombra = new DropShadow();
         sombra.setRadius(25);
@@ -473,8 +472,7 @@ public class VentanaPrincipal extends BorderPane {
         lblMensaje.setStyle(
                 "-fx-text-fill: #6ED36E;" +
                         "-fx-font-size: 32px;" +
-                        "-fx-font-weight: bold;"
-        );
+                        "-fx-font-weight: bold;");
         overlay.getChildren().add(lblMensaje);
 
         int indexActual = juego.getNivelesDisponibles().indexOf(juego.getNivelActual());
@@ -494,8 +492,7 @@ public class VentanaPrincipal extends BorderPane {
                             "-fx-border-width: 2;" +
                             "-fx-cursor: hand;" +
                             "-fx-pref-width: 220px;" +
-                            "-fx-pref-height: 45px;"
-            );
+                            "-fx-pref-height: 45px;");
             btnAccion.setOnMouseEntered(e -> btnAccion.setStyle(
                     "-fx-background-color: linear-gradient(to bottom, #8BFF8B, #3CA43C);" +
                             "-fx-text-fill: white;" +
@@ -507,8 +504,7 @@ public class VentanaPrincipal extends BorderPane {
                             "-fx-border-width: 2;" +
                             "-fx-cursor: hand;" +
                             "-fx-pref-width: 220px;" +
-                            "-fx-pref-height: 45px;"
-            ));
+                            "-fx-pref-height: 45px;"));
             btnAccion.setOnMouseExited(e -> btnAccion.setStyle(
                     "-fx-background-color: linear-gradient(to bottom, #72DD72, #2B882B);" +
                             "-fx-text-fill: white;" +
@@ -520,8 +516,7 @@ public class VentanaPrincipal extends BorderPane {
                             "-fx-border-width: 2;" +
                             "-fx-cursor: hand;" +
                             "-fx-pref-width: 220px;" +
-                            "-fx-pref-height: 45px;"
-            ));
+                            "-fx-pref-height: 45px;"));
             btnAccion.setOnAction(e -> {
                 int siguienteNivel = indexActual + 2;
                 gestorVentanas.abrirNivel(siguienteNivel);
@@ -544,8 +539,7 @@ public class VentanaPrincipal extends BorderPane {
                             "-fx-border-width: 2;" +
                             "-fx-cursor: hand;" +
                             "-fx-pref-width: 220px;" +
-                            "-fx-pref-height: 45px;"
-            );
+                            "-fx-pref-height: 45px;");
             btnAccion.setOnMouseEntered(e -> btnAccion.setStyle(
                     "-fx-background-color: linear-gradient(to bottom, #FFD36B, #D48A23);" +
                             "-fx-text-fill: white;" +
@@ -557,8 +551,7 @@ public class VentanaPrincipal extends BorderPane {
                             "-fx-border-width: 2;" +
                             "-fx-cursor: hand;" +
                             "-fx-pref-width: 220px;" +
-                            "-fx-pref-height: 45px;"
-            ));
+                            "-fx-pref-height: 45px;"));
             btnAccion.setOnMouseExited(e -> btnAccion.setStyle(
                     "-fx-background-color: linear-gradient(to bottom, #F6B43A, #A86A18);" +
                             "-fx-text-fill: white;" +
@@ -570,8 +563,7 @@ public class VentanaPrincipal extends BorderPane {
                             "-fx-border-width: 2;" +
                             "-fx-cursor: hand;" +
                             "-fx-pref-width: 220px;" +
-                            "-fx-pref-height: 45px;"
-            ));
+                            "-fx-pref-height: 45px;"));
             btnAccion.setOnAction(e -> gestorVentanas.mostrarMenu());
         }
 
