@@ -28,7 +28,7 @@ public final class GestorColisiones {
 
         Caja caja = tablero.obtenerCaja(filaDestino, columnaDestino);
         if (caja == null) {
-            if (!tablero.esTransitable(filaDestino, columnaDestino)) {
+            if (!tablero.esCeldaTransitable(filaDestino, columnaDestino)) {
                 return false;
             }
             tablero.moverPersonaje(personaje, filaDestino, columnaDestino);
@@ -38,7 +38,7 @@ public final class GestorColisiones {
         int filaDestinoCaja = filaDestino + deltaFila;
         int columnaDestinoCaja = columnaDestino + deltaColumna;
         if (!tablero.estaDentroDelTablero(filaDestinoCaja, columnaDestinoCaja)
-                || !tablero.esTransitable(filaDestinoCaja, columnaDestinoCaja)
+                || !tablero.esCeldaTransitable(filaDestinoCaja, columnaDestinoCaja)
                 || tablero.obtenerCaja(filaDestinoCaja, columnaDestinoCaja) != null) {
             return false;
         }

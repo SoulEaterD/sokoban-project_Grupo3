@@ -6,7 +6,7 @@ import ec.edu.epn.sokoban.model.interfaces.Dibujador;
 /**
  * La matriz bidimensional del escenario es gestionada.
  */
-public class Tablero extends Casilla implements Transitable {
+public class Tablero extends Casilla {
     private int filas;
     private int columnas;
     private Casilla[][] celdas;
@@ -121,7 +121,7 @@ public class Tablero extends Casilla implements Transitable {
      * @return true si la coordenada contiene una casilla transitable; false en caso
      *         contrario
      */
-    public boolean esTransitable(int f, int c) {
+    public boolean esCeldaTransitable(int f, int c) {
         Casilla casilla = obtenerCasilla(f, c);
         return casilla != null && casilla instanceof Transitable && ((Transitable) casilla).esTransitable();
     }
@@ -165,11 +165,6 @@ public class Tablero extends Casilla implements Transitable {
 
     public Personaje getPersonaje() {
         return personaje;
-    }
-
-    @Override
-    public boolean esTransitable() {
-        return true;
     }
 
     @Override
