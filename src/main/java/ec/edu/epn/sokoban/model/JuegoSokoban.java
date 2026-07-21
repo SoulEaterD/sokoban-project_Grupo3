@@ -21,7 +21,6 @@ public class JuegoSokoban {
     private Nivel nivelActual;
     private Tablero tableroActual;
     private HistorialMovimientos historial;
-    private final ReglasJuego reglasJuego;
     private GestorPersistencia persistencia;
 
     // =========================================================================
@@ -31,7 +30,6 @@ public class JuegoSokoban {
     public JuegoSokoban(List<Nivel> nivelesDisponibles) {
         this.nivelesDisponibles = nivelesDisponibles != null ? nivelesDisponibles : new ArrayList<>();
         this.historial = new HistorialMovimientos();
-        this.reglasJuego = new ReglasJuego();
         this.persistencia = new GestorPersistencia("progress.txt");
     }
 
@@ -47,7 +45,9 @@ public class JuegoSokoban {
         FabricaNiveles fabrica = new FabricaNiveles();
         this.nivelActual = nivel;
         this.tableroActual = fabrica.construirTablero(nivel);
-        this.reglasJuego.asociarTablero(this.tableroActual);
+        if (this.nivelActual.getReglasJuego() != null) {
+            this.nivelActual.getReglasJuego().asociarTablero(this.tableroActual);
+        }
         this.historial.vaciarHistorial();
     }
 
@@ -80,7 +80,7 @@ public class JuegoSokoban {
     }
 
     public ReglasJuego getReglasJuego() {
-        return reglasJuego;
+        return nivelActual != null ? nivelActual.getReglasJuego() : null;
     }
 
     public GestorPersistencia getPersistencia() {
@@ -126,7 +126,7 @@ public class JuegoSokoban {
     }
 
     public void verificarYRegistrarVictoria() {
-        if (nivelActual != null && reglasJuego.verificarVictoria()) {
+        if (nivelActual != null && nivelActual.getReglasJuego() != null && nivelActual.getReglasJuego().verificarVictoria()) {
             nivelActual.marcarComoCompletado();
             persistencia.guardarProgreso(nivelesDisponibles);
         }

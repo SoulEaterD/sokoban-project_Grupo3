@@ -1,11 +1,14 @@
 package ec.edu.epn.sokoban.model.historial;
 
+import ec.edu.epn.sokoban.model.reglas.ReglasJuego;
+
 /**
- * La definicion inicial de un nivel y su estado de victoria son encapsulados.
+ * La definicion inicial de un nivel, sus reglas asociadas y su estado de victoria son encapsulados.
  */
 public class Nivel {
     private boolean completado;
     private String[][] mapaDatos;
+    private ReglasJuego reglasJuego;
 
     /**
      * Un nivel es inicializado como no completado.
@@ -13,7 +16,7 @@ public class Nivel {
      * @param mapaDatos matriz inicial de diseno del nivel
      */
     public Nivel(String[][] mapaDatos) {
-        this(mapaDatos, false);
+        this(mapaDatos, false, new ReglasJuego());
     }
 
     /**
@@ -23,8 +26,41 @@ public class Nivel {
      * @param completado estado inicial de victoria del nivel
      */
     public Nivel(String[][] mapaDatos, boolean completado) {
+        this(mapaDatos, completado, new ReglasJuego());
+    }
+
+    /**
+     * Un nivel es inicializado con su estado de victoria y sus reglas de juego personalizadas.
+     *
+     * @param mapaDatos   matriz inicial de diseno del nivel
+     * @param completado  estado inicial de victoria del nivel
+     * @param reglasJuego las reglas asociadas a este nivel especifico
+     */
+    public Nivel(String[][] mapaDatos, boolean completado, ReglasJuego reglasJuego) {
         this.mapaDatos = copiarMatriz(mapaDatos);
         this.completado = completado;
+        this.reglasJuego = reglasJuego != null ? reglasJuego : new ReglasJuego();
+    }
+
+    /**
+     * Retorna las reglas de juego asociadas a este nivel.
+     *
+     * @return la instancia de {@link ReglasJuego} del nivel
+     */
+    public ReglasJuego getReglasJuego() {
+        if (reglasJuego == null) {
+            reglasJuego = new ReglasJuego();
+        }
+        return reglasJuego;
+    }
+
+    /**
+     * Asigna reglas de juego personalizadas a este nivel.
+     *
+     * @param reglasJuego las nuevas reglas de juego a asignar
+     */
+    public void setReglasJuego(ReglasJuego reglasJuego) {
+        this.reglasJuego = reglasJuego != null ? reglasJuego : new ReglasJuego();
     }
 
     /**
