@@ -108,6 +108,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         sprites.put("META", cargarImagen("/images/goal.png"));
         sprites.put("CAJA", cargarImagen("/images/box.png"));
         sprites.put("JUGADOR", cargarImagen("/images/player.png"));
+        sprites.put("AZAR", cargarImagen("/images/azar.png"));
         sprites.put("AGRIETADO", cargarImagen("/images/agrietado.png"));
         sprites.put("AGRIETADO_ROTO", cargarImagen("/images/agrietado_roto.png"));
         sprites.put("CAJA_EXPLOSIVA", cargarImagen("/images/explosionBox.png"));
@@ -193,7 +194,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
 
     private double obtenerTamanoSprite(String claveSprite) {
         return switch (claveSprite) {
-            case "CAJA", "CAJA_EXPLOSIVA" -> tamCelda * 0.78;
+            case "CAJA" -> tamCelda * 0.78;
             case "JUGADOR" -> tamCelda * 0.88;
             case "META" -> tamCelda * 0.97;
             default -> tamCelda;
@@ -246,9 +247,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         if (caja.isEnMeta()) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
-        String claveSprite = tieneExplosion(caja) ? "CAJA_EXPLOSIVA" : "CAJA";
-        agregarSprite(celda, claveSprite, Color.web("#B8793B"));
-
+        agregarSprite(celda, "CAJA", Color.web("#B8793B"));
     }
 
     @Override
@@ -275,8 +274,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     }
 
     private void dibujarAccionesDeCasilla(int fila, int columna, StackPane celda) {
-        if (tablero == null)
-            return;
+        if (tablero == null) return;
         Casilla casilla = tablero.obtenerCasilla(fila, columna);
         if (casilla != null) {
             for (Accion accion : casilla.getGestorAcciones().getAcciones()) {
@@ -290,7 +288,8 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     }
 
     private Color obtenerColorRespaldoParaAccion(String spriteKey) {
-        return switch (spriteKey) {
+        return switch (spriteKey){
+            case "AZAR" -> Color.web("#FFD700"); //Color dorado de respaldo
             case "AGRIETADO" -> Color.web("#6B5140");
             case "AGRIETADO_ROTO" -> Color.web("#1F1712");
             case "LAVA" -> Color.web("#FF4500"); // Grupo 2: respaldo naranja/rojo

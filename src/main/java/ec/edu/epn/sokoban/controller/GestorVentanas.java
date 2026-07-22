@@ -1,16 +1,15 @@
 package ec.edu.epn.sokoban.controller;
 
 import ec.edu.epn.sokoban.model.JuegoSokoban;
+import ec.edu.epn.sokoban.model.escenario.Azar;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
-import ec.edu.epn.sokoban.model.escenario.Agrietado;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 import ec.edu.epn.sokoban.model.persistencia.GestorPersistencia;
-import ec.edu.epn.sokoban.model.escenario.Lava;
-import javafx.application.Platform;
 import ec.edu.epn.sokoban.view.Creditos;
 import ec.edu.epn.sokoban.view.MenuInicio;
 import ec.edu.epn.sokoban.view.SeleccionNivel;
 import ec.edu.epn.sokoban.view.VentanaPrincipal;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.util.ArrayList;
@@ -84,6 +83,17 @@ public class GestorVentanas {
         Agrietado.registrarNotificadorReinicio(accionDerrota);
 
         ventana.setControladorTeclado(controlador);
+
+        // Registro de notificacion de derrota para reinicio en Azar
+        Azar.registrarNotificadorDerrota(() ->
+            Platform.runLater(() -> {
+                juego.reiniciarNivelActual();
+                Tablero tableroReiniciado = juego.getTableroActual();
+                ventana.actualizarTablero(tableroReiniciado);
+                controlador.setTablero(tableroReiniciado);
+                ventana.actualizarEstadisticas();
+            })
+        );
 
         Scene scene = new Scene(ventana, 1280, 720);
         scene.setOnKeyPressed(controlador);
