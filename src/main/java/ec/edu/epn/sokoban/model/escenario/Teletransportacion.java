@@ -55,20 +55,10 @@ public class Teletransportacion implements Accion {
         return true;
     }
 
-    /**
-     * La fila del punto de destino fue retornada para consulta externa.
-     *
-     * @return la fila de la casilla destino registrada en esta acción
-     */
     public int getFilaDestino() {
         return filaDestino;
     }
 
-    /**
-     * La columna del punto de destino fue retornada para consulta externa.
-     *
-     * @return la columna de la casilla destino registrada en esta acción
-     */
     public int getColumnaDestino() {
         return columnaDestino;
     }
