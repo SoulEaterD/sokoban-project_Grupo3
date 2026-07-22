@@ -32,7 +32,6 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     private static final int ALTO_MAX_TABLERO = 560;
 
     private static final int TAM_CELDA_MAX = 64;
-    private static final int TAM_CELDA_MIN = 32;
 
     private static final int ESPACIO_ENTRE_CELDAS = 1;
 
@@ -98,8 +97,8 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
             tamCelda = TAM_CELDA_MAX;
         }
 
-        if (tamCelda < TAM_CELDA_MIN) {
-            tamCelda = TAM_CELDA_MIN;
+        if (tamCelda < 1) {
+            tamCelda = 1;
         }
     }
 
@@ -112,6 +111,8 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         sprites.put("AGRIETADO", cargarImagen("/images/agrietado.png"));
         sprites.put("AGRIETADO_ROTO", cargarImagen("/images/agrietado_roto.png"));
         sprites.put("CAJA_EXPLOSIVA", cargarImagen("/images/explosionBox.png"));
+        sprites.put("LAVA", cargarImagen("/images/lava.png"));
+        sprites.put("PORTAL", cargarImagen("/images/portal.png"));
     }
 
     private Image cargarImagen(String ruta) {
@@ -254,10 +255,6 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     public void dibujarPersonaje(Personaje personaje, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
         dibujarAccionesDeCasilla(personaje.getFila(), personaje.getColumna(), celda);
-        if (Agrietado.estaRoto(personaje.getFila(), personaje.getColumna())) {
-            agregarSprite(celda, "AGRIETADO_ROTO", Color.web("#1F1712"));
-        }
-        if (tablero != null && tablero.esMeta(personaje.getFila(), personaje.getColumna())) {
         if (tablero != null && tablero.esCeldaMeta(personaje.getFila(), personaje.getColumna())) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
@@ -296,8 +293,6 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         return switch (spriteKey) {
             case "AGRIETADO" -> Color.web("#6B5140");
             case "AGRIETADO_ROTO" -> Color.web("#1F1712");
-            default -> Color.TRANSPARENT;
-        };
             case "LAVA" -> Color.web("#FF4500"); // Grupo 2: respaldo naranja/rojo
             case "PORTAL" -> Color.web("#8A2BE2");
             default -> Color.TRANSPARENT;

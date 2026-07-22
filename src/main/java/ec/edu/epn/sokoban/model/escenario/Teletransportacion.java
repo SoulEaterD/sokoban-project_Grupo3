@@ -45,7 +45,7 @@ public class Teletransportacion implements Accion {
             if (tablero == null
                     || !tablero.estaDentroDelTablero(fB, cB)
                     || !tablero.esCeldaTransitable(fB, cB)
-                    || tablero.obtenerCaja(fB, cB) != null
+                    || tablero.obtenerCajaEnPosicion(fB, cB) != null
                     || (tablero.getPersonaje() != null
                             && tablero.getPersonaje().getFila() == fB
                             && tablero.getPersonaje().getColumna() == cB)) {

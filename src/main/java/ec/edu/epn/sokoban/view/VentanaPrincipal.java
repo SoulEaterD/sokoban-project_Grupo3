@@ -11,7 +11,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -76,7 +75,11 @@ public class VentanaPrincipal extends BorderPane {
 
         btnRetroceder.setOnAction(e -> {
             juego.deshacerUltimaAccion();
-            actualizarTablero(juego.getTableroActual());
+            Tablero tableroRestaurado = juego.getTableroActual();
+            if (controladorTeclado != null) {
+                controladorTeclado.setTablero(tableroRestaurado);
+            }
+            actualizarTablero(tableroRestaurado);
             actualizarEstadisticas();
         });
 
@@ -327,19 +330,7 @@ public class VentanaPrincipal extends BorderPane {
         zona.setAlignment(Pos.CENTER);
         zona.setPadding(new Insets(18, 24, 18, 0));
 
-        ScrollPane scrollPane = new ScrollPane(panelTablero);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        scrollPane.setPannable(true);
-        scrollPane.setMaxWidth(980);
-        scrollPane.setMaxHeight(600);
-
-        scrollPane.setStyle(
-                "-fx-background: transparent;" +
-                        "-fx-background-color: transparent;" +
-                        "-fx-border-color: transparent;");
-
-        zona.getChildren().add(scrollPane);
+        zona.getChildren().add(panelTablero);
 
         return zona;
     }

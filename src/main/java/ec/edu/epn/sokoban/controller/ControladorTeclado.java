@@ -101,12 +101,17 @@ public class ControladorTeclado implements EventHandler<KeyEvent> {
                 return; // Ignora cualquier otra tecla
         }
 
-        if (direccionElegida != null && personaje != null && tablero != null && gestorColisiones != null) {
+        Personaje personajeActual = (tablero != null && tablero.getPersonaje() != null) ? tablero.getPersonaje() : personaje;
+        if (personajeActual != null) {
+            this.personaje = personajeActual;
+        }
+
+        if (direccionElegida != null && personajeActual != null && tablero != null && gestorColisiones != null) {
             if (antesDeMover != null) {
                 antesDeMover.run();
             }
 
-            boolean movimientoRealizado = personaje.mover(direccionElegida, tablero, gestorColisiones);
+            boolean movimientoRealizado = personajeActual.mover(direccionElegida, tablero, gestorColisiones);
 
             if (movimientoRealizado) {
                 if (despuesDeMover != null) {

@@ -78,13 +78,19 @@ public final class GestorColisiones {
         }
 
         Casilla casillaDestinoCaja = tablero.obtenerCasilla(filaDestinoCaja, columnaDestinoCaja);
-        if (!casillaDestinoCaja.getGestorAcciones().puedenIngresarAcciones(tablero, caja)) {
+        Casilla casillaBasePersonaje = tablero.obtenerCasillaBase(filaDestino, columnaDestino);
+
+        if (!casillaDestinoCaja.getGestorAcciones().puedenIngresarAcciones(tablero, caja)
+                || (casillaBasePersonaje != null && !casillaBasePersonaje.getGestorAcciones().puedenIngresarAcciones(tablero, personaje))) {
             return false;
         }
 
         tablero.actualizarCasilla(filaDestinoCaja, columnaDestinoCaja, caja);
         tablero.actualizarCasilla(filaDestino, columnaDestino, personaje);
         casillaDestinoCaja.getGestorAcciones().ejecutarAcciones(casillaDestinoCaja, tablero, caja);
+        if (casillaBasePersonaje != null) {
+            casillaBasePersonaje.getGestorAcciones().ejecutarAcciones(casillaBasePersonaje, tablero, personaje);
+        }
         return true;
     }
 }

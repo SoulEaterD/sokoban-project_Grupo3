@@ -1,7 +1,10 @@
 package ec.edu.epn.sokoban.model.factory;
 
 import ec.edu.epn.sokoban.model.escenario.Tablero;
+import ec.edu.epn.sokoban.model.escenario.Teletransportacion;
 import ec.edu.epn.sokoban.model.escenario.Casilla;
+import ec.edu.epn.sokoban.model.escenario.Explosion;
+import ec.edu.epn.sokoban.model.escenario.Lava;
 import ec.edu.epn.sokoban.model.escenario.Pared;
 import ec.edu.epn.sokoban.model.escenario.Suelo;
 import ec.edu.epn.sokoban.model.escenario.Meta;
@@ -9,6 +12,10 @@ import ec.edu.epn.sokoban.model.escenario.Caja;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
 import ec.edu.epn.sokoban.model.escenario.Agrietado;
 import ec.edu.epn.sokoban.model.historial.Nivel;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Fábrica encargada de instanciar y armar el tablero a partir del mapa de datos
