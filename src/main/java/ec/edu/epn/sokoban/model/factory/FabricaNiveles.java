@@ -12,6 +12,7 @@ import java.util.List;
 
 import ec.edu.epn.sokoban.model.escenario.Caja;
 import ec.edu.epn.sokoban.model.escenario.Personaje;
+import ec.edu.epn.sokoban.model.escenario.Lava;
 import ec.edu.epn.sokoban.model.historial.Nivel;
 
 /**
@@ -86,6 +87,10 @@ public class FabricaNiveles {
                 metas[fila][columna] = true;
                 return new Personaje(fila, columna);
 
+            case "L": // Grupo 2: suelo con acción de Lava
+                Suelo sueloLava = new Suelo(fila, columna);
+                sueloLava.getGestorAcciones().agregarAccion(new Lava());
+                return sueloLava;
             case "T":
                 Suelo sueloPortal = new Suelo(fila, columna);
 
