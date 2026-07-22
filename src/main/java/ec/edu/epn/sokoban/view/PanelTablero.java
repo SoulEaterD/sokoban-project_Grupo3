@@ -32,7 +32,6 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     private static final int ALTO_MAX_TABLERO = 560;
 
     private static final int TAM_CELDA_MAX = 64;
-    private static final int TAM_CELDA_MIN = 32;
 
     private static final int ESPACIO_ENTRE_CELDAS = 1;
 
@@ -98,8 +97,8 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
             tamCelda = TAM_CELDA_MAX;
         }
 
-        if (tamCelda < TAM_CELDA_MIN) {
-            tamCelda = TAM_CELDA_MIN;
+        if (tamCelda < 1) {
+            tamCelda = 1;
         }
     }
 
@@ -109,9 +108,12 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
         sprites.put("META", cargarImagen("/images/goal.png"));
         sprites.put("CAJA", cargarImagen("/images/box.png"));
         sprites.put("JUGADOR", cargarImagen("/images/player.png"));
-        // En cargarSprites():
         sprites.put("AZAR", cargarImagen("/images/azar.png"));
-
+        sprites.put("AGRIETADO", cargarImagen("/images/agrietado.png"));
+        sprites.put("AGRIETADO_ROTO", cargarImagen("/images/agrietado_roto.png"));
+        sprites.put("CAJA_EXPLOSIVA", cargarImagen("/images/explosionBox.png"));
+        sprites.put("LAVA", cargarImagen("/images/lava.png"));
+        sprites.put("PORTAL", cargarImagen("/images/portal.png"));
     }
 
     private Image cargarImagen(String ruta) {
@@ -252,7 +254,7 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     public void dibujarPersonaje(Personaje personaje, StackPane celda, int tamCelda) {
         agregarSueloBase(celda);
         dibujarAccionesDeCasilla(personaje.getFila(), personaje.getColumna(), celda);
-        if (tablero != null && tablero.esMeta(personaje.getFila(), personaje.getColumna())) {
+        if (tablero != null && tablero.esCeldaMeta(personaje.getFila(), personaje.getColumna())) {
             agregarSprite(celda, "META", Color.web("#F4D35E"));
         }
         agregarSprite(celda, "JUGADOR", Color.web("#4DA6FF"));
@@ -288,7 +290,21 @@ public class PanelTablero extends GridPane implements Dibujador<StackPane> {
     private Color obtenerColorRespaldoParaAccion(String spriteKey) {
         return switch (spriteKey){
             case "AZAR" -> Color.web("#FFD700"); //Color dorado de respaldo
+            case "AGRIETADO" -> Color.web("#6B5140");
+            case "AGRIETADO_ROTO" -> Color.web("#1F1712");
+            case "LAVA" -> Color.web("#FF4500"); // Grupo 2: respaldo naranja/rojo
+            case "PORTAL" -> Color.web("#8A2BE2");
             default -> Color.TRANSPARENT;
         };
+    }
+
+    /**
+     * Meotodo privado que permite saber si una caja tiene o no explosion
+     * @param caja
+     * @return
+     */
+    private boolean tieneExplosion(Caja caja) {
+        return caja.getGestorAcciones().getAcciones().stream()
+                .anyMatch(accion -> accion instanceof Explosion);
     }
 }

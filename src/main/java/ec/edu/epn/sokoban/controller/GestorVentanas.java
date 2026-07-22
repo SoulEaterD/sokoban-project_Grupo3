@@ -12,7 +12,6 @@ import ec.edu.epn.sokoban.view.VentanaPrincipal;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import java.util.ArrayList;
 
 public class GestorVentanas {
@@ -48,7 +47,8 @@ public class GestorVentanas {
             juego.getReglasJuego().getGestorColisiones()
         );
         controlador.setVentanaPrincipal(ventana);
-        controlador.setCheckNivelCompletado(() -> juego.getNivelActual() != null && juego.getNivelActual().isCompletado());
+        controlador.setCheckNivelCompletado(() ->
+            juego.getNivelActual() != null && juego.getNivelActual().isCompletado());
         
         controlador.setAntesDeMover(() -> {
             flujo.estadoAnterior = juego.capturarEstadoActual();
@@ -64,10 +64,24 @@ public class GestorVentanas {
         
         controlador.setAccionDeshacer(() -> {
             juego.deshacerUltimaAccion();
-            ventana.actualizarTablero(juego.getTableroActual());
+            Tablero tableroRestaurado = juego.getTableroActual();
+            controlador.setTablero(tableroRestaurado);
+            ventana.actualizarTablero(tableroRestaurado);
             ventana.actualizarEstadisticas();
         });
-        
+
+        // Callback compartido de derrota (Lava, Agrietado, etc.): al perder se reinicia el nivel actual.
+        Runnable accionDerrota = () -> Platform.runLater(() -> {
+            juego.reiniciarNivelActual();
+            Tablero tableroReiniciado = juego.getTableroActual();
+            ventana.actualizarTablero(tableroReiniciado);
+            controlador.setTablero(tableroReiniciado);
+            ventana.actualizarEstadisticas();
+        });
+
+        Lava.registrarNotificadorDerrota(accionDerrota);
+        Agrietado.registrarNotificadorReinicio(accionDerrota);
+
         ventana.setControladorTeclado(controlador);
 
         // Registro de notificacion de derrota para reinicio en Azar

@@ -163,6 +163,13 @@ public class Tablero extends Casilla {
         return personaje;
     }
 
+    public Casilla obtenerCasillaBase(int f, int c) {
+        if (estaDentroDelTablero(f, c) && casillasBase != null) {
+            return casillasBase[f][c];
+        }
+        return null;
+    }
+
     @Override
     public <T> void dibujar(Dibujador<T> dibujador, T contenedor, int tamCelda) {
     }

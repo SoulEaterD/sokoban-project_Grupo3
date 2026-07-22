@@ -1,8 +1,5 @@
 package ec.edu.epn.sokoban.model;
 
-import ec.edu.epn.sokoban.model.escenario.Caja;
-import ec.edu.epn.sokoban.model.escenario.Casilla;
-import ec.edu.epn.sokoban.model.escenario.Personaje;
 import ec.edu.epn.sokoban.model.escenario.Tablero;
 import ec.edu.epn.sokoban.model.factory.FabricaNiveles;
 import ec.edu.epn.sokoban.model.historial.HistorialMovimientos;
@@ -12,9 +9,7 @@ import ec.edu.epn.sokoban.model.persistencia.GestorPersistencia;
 import ec.edu.epn.sokoban.model.reglas.ReglasJuego;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class JuegoSokoban {
     private List<Nivel> nivelesDisponibles;
@@ -105,28 +100,12 @@ public class JuegoSokoban {
     }
 
     public PartidaMomento capturarEstadoActual() {
-        Map<Caja, Casilla> posicionesCajas = new HashMap<>();
-        Casilla posicionJugador = null;
-
-        for (int f = 0; f < tableroActual.getFilas(); f++) {
-            for (int c = 0; c < tableroActual.getColumnas(); c++) {
-                Casilla casilla = tableroActual.obtenerCasilla(f, c);
-
-                if (casilla instanceof Caja) {
-                    posicionesCajas.put((Caja) casilla, casilla);
-                }
-
-                if (casilla instanceof Personaje) {
-                    posicionJugador = casilla;
-                }
-            }
-        }
-
-        return new PartidaMomento(posicionesCajas, posicionJugador);
+        return new PartidaMomento(tableroActual);
     }
 
     public void registrarVictoria() {
-        if (nivelActual != null && nivelActual.getReglasJuego() != null && nivelActual.getReglasJuego().verificarVictoria()) {
+        if (nivelActual != null && nivelActual.getReglasJuego() != null
+                && nivelActual.getReglasJuego().verificarVictoria()) {
             nivelActual.marcarComoCompletado();
             persistencia.guardarProgreso(nivelesDisponibles);
         }
