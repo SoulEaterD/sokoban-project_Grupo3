@@ -31,10 +31,6 @@ public class Agrietado implements Accion {
         notificadorReinicio = accion;
     }
 
-    public static void registrarNotificadorDerrota(Runnable accion) {
-        notificadorReinicio = accion;
-    }
-
     @Override
     public void iniciarAccion(Casilla casillaActual, Tablero tablero, Casilla entidad) {
         if (!(entidad instanceof Personaje)) {
